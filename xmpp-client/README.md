@@ -1,11 +1,11 @@
-# XMPP Server honeypot implementation
-To be added
+# XMPP Client honeypot implementation
+
 
 # Summary
-To be added
+XMPP client honeypot for Internet of Things.
 
 # Description
-To be added
+Including codes that written by Meng Wang and third party codes.
 
 # Changelog
 
