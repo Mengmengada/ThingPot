@@ -1,0 +1,10 @@
+# Author: Meng Wang
+# Date: 27-03-2017
+# configuration file for xmpp-client. As an example
+- name: device
+- JID:
+    - node:   meng1
+    - domain: xmpp.jp
+- password: xmpptest
+- resource: temperature
+#- debug:
