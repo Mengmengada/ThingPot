@@ -105,10 +105,16 @@ if __name__ == '__main__':
     # Setup logging.
     logging.basicConfig(level=opts.loglevel,
                         format='%(levelname)-8s %(message)s')
+    #use the configuration file
+    DATA_FILE = "../XHC/xclient1.yaml"
+    data = yaml.load(open(DATA_FILE))
+    jid = data['JID']['node'] + "@" + data['JID']['domain']
+    nodeid = data['resource']
+    password = data['password']
     # jidmeng1 = "meng1@xmpp.jp"
     # nodeid = "temperatu"
     # passwordmeng1 = "xmpptest"
-    xmpp = Client_SendTemp(jidmeng1 + "/" + nodeid, passwordmeng1)
+    xmpp = Client_SendTemp(jid + "/" + nodeid, password)
     xmpp.register_plugin('xep_0030')
     xmpp.register_plugin('xep_0323')
     xmpp.register_plugin('xep_0325')

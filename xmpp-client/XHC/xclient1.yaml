@@ -1,10 +1,10 @@
 # Author: Meng Wang
 # Date: 27-03-2017
 # configuration file for xmpp-client. As an example
-- name: device
-- JID:
-    - node:   meng1
-    - domain: xmpp.jp
-- password: xmpptest
-- resource: temperature
+  name: meng1 #name of the acount or device, as an index to distinguish
+  JID:
+      node:   meng1 # node's name
+      domain: xmpp.jp # domain of a JID
+  password: xmpptest #password of this JID
+  resource: temperature # the resource you want to register as
 #- debug:
