@@ -1,14 +1,12 @@
 #Author: Meng Wang
 #an xmpp client that supposed to have a sensor and provide data
 
-import logging
-import sys
 from optparse import OptionParser
+from thirdparty import sleekxmpp
+
+from thirdparty.sleekxmpp.plugins.xep_0323.device import Device #plugin for iot xep
+import logging
 import socket
-from sleekxmpp import xmlstream
-import sleekxmpp
-from sleekxmpp.basexmpp import BaseXMPP
-from sleekxmpp.plugins.xep_0323.device import Device #plugin for iot xep
 import yaml
 
 class Client_SendTemp(sleekxmpp.ClientXMPP):
@@ -59,7 +57,7 @@ class Device_TempSensor(Device):
         logging.debug("=========TheDevice.__init__ called==========")
         self.temperature = 1000# define default temperature value
         self.count = 1
-        #self.update_sensor_data()
+        self.update_sensor_data()
 
     def refresh(self, fields):
         """
@@ -124,6 +122,6 @@ if __name__ == '__main__':
         xmpp['xep_0323'].register_node(nodeId=nodeid, device=myDevice, commTimeout=10)
         while not (xmpp.testForRelease()):
             xmpp.connect()  # to xmpp server,the session_start is called here
-            print "the IP address is : " #+ xmlstream.XMLStream.pick_dns_answer(BaseXMPP.jid.,5222)
+            # print "the IP address is : " #+ xmlstream.XMLStream.pick_dns_answer(BaseXMPP.jid.,5222)
             xmpp.process(block=True)
             logging.debug("lost connection")
