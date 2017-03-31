@@ -22,7 +22,7 @@ from sleekxmpp.xmlstream.matcher import StanzaPath
 from sleekxmpp.plugins.base import BasePlugin
 from sleekxmpp.plugins.xep_0323 import stanza
 from sleekxmpp.plugins.xep_0323.stanza import Sensordata
-
+from XHM.handler import DataHandler
 
 log = logging.getLogger(__name__)
 
@@ -238,81 +238,28 @@ class XEP_0323(BasePlugin):
         If the request passes verification, an accept response is sent, and
         the readout process is started in a separate thread.
         If the verification fails, a reject message is sent.
+
+        Modified by Meng
         """
-
-        seqnr = iq['req']['seqnr'];
-        error_msg = '';#accepted iq sent aftet this --commented by Meng
-        req_ok = True;
-
-        # Authentication IMPORTANT!!!!!!!!!!!!!!!!!!!!!!     --commented by Meng
-        ##########################################################################
-        #If we set req_ok always true, we can pass the authentication
-        ##############################################################################
-        if len(self.test_authenticated_from) > 0 and not iq['from'] == self.test_authenticated_from:
-            # Invalid authentication
-            req_ok = False;
-            error_msg = "Access denied";
-
-        # Nodes
-        process_nodes = [];
-        if len(iq['req']['nodes']) > 0:
-            for n in iq['req']['nodes']:
-                if not n['nodeId'] in self.nodes:
-                    req_ok = False;
-                    error_msg = "Invalid nodeId " + n['nodeId'];
-            process_nodes = [n['nodeId'] for n in iq['req']['nodes']];
-        else:
-            process_nodes = self.nodes.keys();
-
-        # Fields - if we just find one we are happy, otherwise we reject
-        process_fields = [];
-        if len(iq['req']['fields']) > 0:
-            found = False
-            for f in iq['req']['fields']:
-                for node in self.nodes:
-                    if self.nodes[node]["device"].has_field(f['name']):
-                        found = True;
-                        break;
-            if not found:
-                req_ok = False;
-                error_msg = "Invalid field " + f['name'];
-            process_fields = [f['name'] for n in iq['req']['fields']];
-
-        req_flags = iq['req']._get_flags();
-
-        request_delay_sec = None
-        if 'when' in req_flags:
-            # Timed request - requires datetime string in iso format
-            # ex. 2013-04-05T15:00:03
-            dt = None
-            try:
-                dt = datetime.datetime.strptime(req_flags['when'], "%Y-%m-%dT%H:%M:%S")
-            except ValueError:
-                req_ok = False;
-                error_msg = "Invalid datetime in 'when' flag, please use ISO format (i.e. 2013-04-05T15:00:03)."
-
-            if not dt is None:
-                # Datetime properly formatted
-                dtnow = datetime.datetime.now()
-                dtdiff = dt - dtnow
-                request_delay_sec = dtdiff.seconds + dtdiff.days * 24 * 3600
-                if request_delay_sec <= 0:
-                    req_ok = False;
-                    error_msg = "Invalid datetime in 'when' flag, cannot set a time in the past. Current time: " + dtnow.isoformat();
-
+        seqnr = iq['req']['seqnr']
+        datahandler_index = DataHandler.Datahandle_event_req(self, iq)
+        error_msg = datahandler_index[0]
+        req_ok=datahandler_index[1]
+        req_flags = datahandler_index[2]
+        request_delay_sec = datahandler_index[3]
+        process_fields = datahandler_index[4]
+        process_nodes = datahandler_index[5]
         if req_ok:
             session = self._new_session();
             self.sessions[session] = {"from": iq['from'], "to": iq['to'], "seqnr": seqnr};
             self.sessions[session]["commTimers"] = {};
             self.sessions[session]["nodeDone"] = {};
-
-            #print("added session: " + str(self.sessions))
-
+            # print("added session: " + str(self.sessions))
             iq.reply();
             iq['accepted']['seqnr'] = seqnr;
             if not request_delay_sec is None:
                 iq['accepted']['queued'] = "true"
-            iq.send(block=False);
+            iq.send(block=False); # Here the message is sent
 
             self.sessions[session]["node_list"] = process_nodes;
 
@@ -324,19 +271,20 @@ class XEP_0323(BasePlugin):
                 return
 
             if self.threaded:
-                #print("starting thread")
-                tr_req = Thread(target=self._threaded_node_request, args=(session, process_fields, req_flags))#call --Meng
+                tr_req = Thread(target=self._threaded_node_request,
+                                args=(session, process_fields, req_flags))  # call the refresh function to get the data
                 tr_req.start()
                 print("started thread")
             else:
                 self._threaded_node_request(session, process_fields, req_flags);
-
         else:
             iq.reply();
             iq['type'] = 'error';
             iq['rejected']['seqnr'] = seqnr;
             iq['rejected']['error'] = error_msg;
-            iq.send(block=False);            
+            iq.send(block=False);
+
+
 
     def _threaded_node_request(self, session, process_fields, flags):
         """ 

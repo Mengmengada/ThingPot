@@ -99,6 +99,10 @@ class Device(object):
 
         """
         logging.debug("request_fields called looking for fields %s",fields)
+        ###############################################################################################################
+        #check the fields, if is empty, use the self defined one(defined by xmengpp_client.update_sensor_data)
+        #TODO: Change this part to always sending data back, instead of reject.
+        ##############################################################################################################
         if len(fields) > 0:
             # Check availiability
             for f in fields:

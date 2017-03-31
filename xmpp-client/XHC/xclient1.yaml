@@ -7,4 +7,5 @@
       domain: xmpp.jp # domain of a JID
   password: xmpptest #password of this JID
   resource: temperature # the resource you want to register as
+  honeypot_mode: True
 #- debug:
