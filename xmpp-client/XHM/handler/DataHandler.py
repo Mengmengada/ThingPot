@@ -1,7 +1,13 @@
 import datetime
 import yaml
+from XHM.HoneypotManagement.ReplyManager import ReplyManage_event_req
+####To handle the iq message from others that is requesting device data
+DATA_FILE = "../XHC/xclient1.yaml"
+data = yaml.load(open(DATA_FILE))
+honeypot_mode = data['honeypot_mode']
 
-def Datahandle_event_req(self, iq):
+
+def Datahandle_handle_event_req(self, iq):
     # Assum the situation is that the iq get message is
     error_msg = '';  # accepted iq sent aftet this --commented by Meng
     req_ok = True;
@@ -9,9 +15,7 @@ def Datahandle_event_req(self, iq):
     process_fields = [];
     request_delay_sec = None
     req_flags = iq['req']._get_flags();# ??? what is flags?
-    DATA_FILE = "../XHC/xclient1.yaml"
-    data = yaml.load(open(DATA_FILE))
-    honeypot_mode = data['honeypot_mode']
+
     # Authentication IMPORTANT!!!!!!!!!!!!!!!!!!!!!!     --commented by Meng
     ##########################################################################
     # If we set req_ok always true, we can pass the authentication
@@ -110,5 +114,8 @@ def Datahandle_event_req(self, iq):
                 request_delay_sec = dtdiff.seconds + dtdiff.days * 24 * 3600
                 if request_delay_sec <= 0:
                     req_ok = False;
-                    error_msg = "Invalid datetime in 'when' flag, cannot set a time in the past. Current time: " + dtnow.isoformat();
-    return error_msg, req_ok, req_flags, request_delay_sec, process_fields,process_nodes
+                    error_msg = "Invalid datetime in 'when' flag, cannot set a time in the past. Current time: "\
+                                + dtnow.isoformat();
+    print "dddddddddddddddddddddddddddddd"
+    # iq = ReplyManage_event_req(self, iq, req_ok, request_delay_sec)
+    return error_msg, req_ok, req_flags, request_delay_sec, process_fields, process_nodes, iq

@@ -116,7 +116,7 @@ class Device(object):
         # Refresh data from device
         # ...
         logging.debug("about to refresh device fields %s",fields)
-        self.refresh(fields)
+        self.refresh(fields)  # Here the refresh function in xmengpp_client is called
 
         if "momentary" in flags and flags['momentary'] == "true" or \
            "all" in flags and flags['all'] == "true":
@@ -139,8 +139,8 @@ class Device(object):
                                 "flags": self.momentary_data[f]["flags"]});
             ts_block["timestamp"] = timestamp;
             ts_block["fields"] = field_block;
-
-            callback(session, result="done", nodeId=self.nodeId, timestamp_block=ts_block);
+#This callback function is sending the data back! fields  done,!!   -commented by meng
+            callback(session, result="done", nodeId=self.nodeId, timestamp_block=ts_block); # Here the fields is sent to
             return
 
         from_flag = self._datetime_flag_parser(flags, 'from')
