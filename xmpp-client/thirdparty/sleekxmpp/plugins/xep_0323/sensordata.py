@@ -234,7 +234,7 @@ class XEP_0323(BasePlugin):
           - all the requested nodes are available
           - at least one of the requested fields is available from at least 
             one of the nodes
-
+`
         If the request passes verification, an accept response is sent, and
         the readout process is started in a separate thread.
         If the verification fails, a reject message is sent.
@@ -242,47 +242,48 @@ class XEP_0323(BasePlugin):
         Modified by Meng
         """
         seqnr = iq['req']['seqnr']
-        datahandler_index = DataHandler.Datahandle_event_req(self, iq)
-        error_msg = datahandler_index[0]
-        req_ok=datahandler_index[1]
-        req_flags = datahandler_index[2]
-        request_delay_sec = datahandler_index[3]
-        process_fields = datahandler_index[4]
-        process_nodes = datahandler_index[5]
-        if req_ok:
-            session = self._new_session();
-            self.sessions[session] = {"from": iq['from'], "to": iq['to'], "seqnr": seqnr};
-            self.sessions[session]["commTimers"] = {};
-            self.sessions[session]["nodeDone"] = {};
-            # print("added session: " + str(self.sessions))
-            iq.reply();
-            iq['accepted']['seqnr'] = seqnr;
-            if not request_delay_sec is None:
-                iq['accepted']['queued'] = "true"
-            iq.send(block=False); # Here the message is sent
-
-            self.sessions[session]["node_list"] = process_nodes;
-
-            if not request_delay_sec is None:
-                # Delay request to requested time
-                timer = Timer(request_delay_sec, self._event_delayed_req, args=(session, process_fields, req_flags))
-                self.sessions[session]["commTimers"]["delaytimer"] = timer;
-                timer.start();
-                return
-
-            if self.threaded:
-                tr_req = Thread(target=self._threaded_node_request,
-                                args=(session, process_fields, req_flags))  # call the refresh function to get the data
-                tr_req.start()
-                print("started thread")
-            else:
-                self._threaded_node_request(session, process_fields, req_flags);
-        else:
-            iq.reply();
-            iq['type'] = 'error';
-            iq['rejected']['seqnr'] = seqnr;
-            iq['rejected']['error'] = error_msg;
-            iq.send(block=False);
+        session = self._new_session();
+        self.sessions[session] = {"from": iq['from'], "to": iq['to'], "seqnr": seqnr};
+        self.sessions[session]["commTimers"] = {};
+        self.sessions[session]["nodeDone"] = {}
+        DataHandler.Datahandle_handle_event_req(self, iq, seqnr, session)
+        # datahandler_index = DataHandler.Datahandle_handle_event_req(self, iq)
+        # error_msg = datahandler_index[0]
+        # req_ok=datahandler_index[1]
+        # req_flags = datahandler_index[2]
+        # request_delay_sec = datahandler_index[3]
+        # process_fields = datahandler_index[4]
+        # process_nodes = datahandler_index[5]
+        # if req_ok:
+        # print("added session: " + str(self.sessions))
+        #     iq.reply();
+        #     iq['accepted']['seqnr'] = seqnr;
+        #     if not request_delay_sec is None:
+        #         iq['accepted']['queued'] = "true"
+        #     iq.send(block=False); # Here the message is sent
+        #
+        #     self.sessions[session]["node_list"] = process_nodes;
+        #
+        #     if not request_delay_sec is None:
+        #         # Delay request to requested time
+        #         timer = Timer(request_delay_sec, self._event_delayed_req, args=(session, process_fields, req_flags))
+        #         self.sessions[session]["commTimers"]["delaytimer"] = timer;
+        #         timer.start();
+        #         return
+        #     print self.threaded
+        #     if self.threaded:
+        #         tr_req = Thread(target=self._threaded_node_request,
+        #                         args=(session, process_fields, req_flags))  # call the refresh function to get the data
+        #         tr_req.start()
+        #         print("started thread")
+        #     else:
+        #         self._threaded_node_request(session, process_fields, req_flags);
+        # else:
+        #     iq.reply();
+        #     iq['type'] = 'error';
+        #     iq['rejected']['seqnr'] = seqnr;
+        #     iq['rejected']['error'] = error_msg;
+        #     iq.send(block=False);
 
 
 
@@ -300,10 +301,10 @@ class XEP_0323(BasePlugin):
             self.sessions[session]["nodeDone"][node] = False;        
 
         for node in self.sessions[session]["node_list"]:
-            timer = TimerReset(self.nodes[node]['commTimeout'], self._event_comm_timeout, args=(session, node));
-            self.sessions[session]["commTimers"][node] = timer;
-            #print("Starting timer " + str(timer) + ", timeout: " + str(self.nodes[node]['commTimeout']))
-            timer.start();
+            # timer = TimerReset(self.nodes[node]['commTimeout'], self._event_comm_timeout, args=(session, node));
+            # self.sessions[session]["commTimers"][node] = timer;
+            # print("Starting timer " + str(timer) + ", timeout: " + str(self.nodes[node]['commTimeout']))
+            # timer.start();
             self.nodes[node]['device'].request_fields(process_fields, flags=flags, session=session, callback=self._device_field_request_callback);
 
     def _event_comm_timeout(self, session, nodeId):
@@ -400,6 +401,7 @@ class XEP_0323(BasePlugin):
             error_msg        -- [optional] Only applies when result == "error".
                                 Error details when a request failed.
         """
+        #This is the function to send the temperature
         if not session in self.sessions:
             # This can happend if a session was deleted, like in a cancellation. Just drop the data.
             return
@@ -442,7 +444,7 @@ class XEP_0323(BasePlugin):
                                         flags=f['flags']);
 
             if result == "done":
-                self.sessions[session]["commTimers"][nodeId].cancel();
+                # self.sessions[session]["commTimers"][nodeId].cancel();
                 self.sessions[session]["nodeDone"][nodeId] = True;
                 msg['fields']['done'] = 'true';
                 if (self._all_nodes_done(session)):
@@ -453,7 +455,7 @@ class XEP_0323(BasePlugin):
                 # Restart comm timer
                 self.sessions[session]["commTimers"][nodeId].reset();
 
-            msg.send();
+            msg.send(); # Here the message is sent out
 
     def _handle_event_cancel(self, iq):
         """ Received Iq with cancel - this is a cancel request. 

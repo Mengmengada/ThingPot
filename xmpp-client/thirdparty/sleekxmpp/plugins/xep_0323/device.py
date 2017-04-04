@@ -54,7 +54,6 @@ class Device(object):
 
     def request_fields(self, fields, flags, session, callback):
         print "===========================request_fields in device called ====================="
-        print fields
 
         """
         Starts a data readout. Verifies the requested fields,
@@ -103,16 +102,19 @@ class Device(object):
         #check the fields, if is empty, use the self defined one(defined by xmengpp_client.update_sensor_data)
         #TODO: Change this part to always sending data back, instead of reject.
         ##############################################################################################################
-        if len(fields) > 0:
-            # Check availiability
-            for f in fields:
-                if f not in self.fields.keys():
-                    self._send_reject(session, callback)
-                    return False;
-        else:
-            # Request all fields
-            fields = self.fields.keys();#here the field is valued as 'Temperature' -----comment by meng
-
+        # if len(fields) > 0:
+        #     # Check availiability
+        #     for f in fields:
+        #         if f not in self.fields.keys():
+        #             self._send_reject(session, callback)
+        #             return False;
+        # else:
+        #     # Request all fields
+        #     fields = self.fields.keys();#here the field is valued as 'Temperature' -----comment by meng
+        ################################################################################################################
+        #No matter if the required field exist, just use the self defined one
+        #Honeypot feature: No check of fields
+        fields = self.fields.keys()
         # Refresh data from device
         # ...
         logging.debug("about to refresh device fields %s",fields)
@@ -140,6 +142,7 @@ class Device(object):
             ts_block["timestamp"] = timestamp;
             ts_block["fields"] = field_block;
 #This callback function is sending the data back! fields  done,!!   -commented by meng
+            #we can here call a function in ReplyManager instead of callback in sensordata, thus construct own message
             callback(session, result="done", nodeId=self.nodeId, timestamp_block=ts_block); # Here the fields is sent to
             return
 

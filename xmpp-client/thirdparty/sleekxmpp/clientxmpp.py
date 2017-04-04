@@ -151,6 +151,7 @@ class ClientXMPP(BaseXMPP):
         if address:
             self.dns_service = None
         else:
+            # address = (self.boundjid.host, 5222)
             address = (self.boundjid.host, 5222)
             print address
             self.dns_service = 'xmpp-client'
