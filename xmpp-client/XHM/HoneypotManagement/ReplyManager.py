@@ -1,5 +1,5 @@
 
-def Replyaccept_event_req(self, iq, request_delay_sec, seqnr):
+def form_iq_accept(self, iq, request_delay_sec, seqnr):
     iq.reply();  # Here the iq changed(before is the received, now is a new one with type 'result')
     iq['accepted']['seqnr'] = seqnr;
     if not request_delay_sec is None:

@@ -53,7 +53,8 @@ class Device(object):
         
 
     def request_fields(self, fields, flags, session, callback):
-        # print "===========================request_fields in device called ====================="
+        print "===========================request_fields in device called ====================="
+
         """
         Starts a data readout. Verifies the requested fields,
         refreshes the data (if needed) and calls the callback
@@ -97,21 +98,27 @@ class Device(object):
 
         """
         logging.debug("request_fields called looking for fields %s",fields)
-        #Might need to be changed
-        if len(fields) > 0:
-            # Check availiability
-            for f in fields:
-                if f not in self.fields.keys():
-                    self._send_reject(session, callback)
-                    return False;
-        else:
-            # Request all fields
-            fields = self.fields.keys();#here the field is valued as 'Temperature' -----comment by meng
-
+        ###############################################################################################################
+        #check the fields, if is empty, use the self defined one(defined by xmengpp_client.update_sensor_data)
+        #TODO: Change this part to always sending data back, instead of reject.
+        ##############################################################################################################
+        # if len(fields) > 0:
+        #     # Check availiability
+        #     for f in fields:
+        #         if f not in self.fields.keys():
+        #             self._send_reject(session, callback)
+        #             return False;
+        # else:
+        #     # Request all fields
+        #     fields = self.fields.keys();#here the field is valued as 'Temperature' -----comment by meng
+        ################################################################################################################
+        #No matter if the required field exist, just use the self defined one
+        #Honeypot feature: No check of fields
+        fields = self.fields.keys()
         # Refresh data from device
         # ...
         logging.debug("about to refresh device fields %s",fields)
-        self.refresh(fields)
+        self.refresh(fields)  # Here the refresh function in xmengpp_client is called
 
         if "momentary" in flags and flags['momentary'] == "true" or \
            "all" in flags and flags['all'] == "true":
@@ -134,8 +141,9 @@ class Device(object):
                                 "flags": self.momentary_data[f]["flags"]});
             ts_block["timestamp"] = timestamp;
             ts_block["fields"] = field_block;
-
-            callback(session, result="done", nodeId=self.nodeId, timestamp_block=ts_block);
+#This callback function is sending the data back! fields  done,!!   -commented by meng
+            #we can here call a function in ReplyManager instead of callback in sensordata, thus construct own message
+            callback(session, result="done", nodeId=self.nodeId, timestamp_block=ts_block); # Here the fields is sent to
             return
 
         from_flag = self._datetime_flag_parser(flags, 'from')
