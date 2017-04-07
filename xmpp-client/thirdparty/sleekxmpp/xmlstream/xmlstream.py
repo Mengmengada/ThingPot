@@ -1242,8 +1242,8 @@ class XMLStream(object):
                                  filters is useful when resending stanzas.
                                  Defaults to ``True``.
         """
-        if timeout is None:
-            timeout = self.response_timeout
+        # if timeout is None:
+        #     timeout = self.response_timeout
         if hasattr(mask, 'xml'):
             mask = mask.xml
 
@@ -1517,7 +1517,7 @@ class XMLStream(object):
                 break
 
     def __read_xml(self):
-        print "===================readxml================================="
+        print "===================================================="
         """Parse the incoming XML stream
 
         Stream events are raised for each received stanza.

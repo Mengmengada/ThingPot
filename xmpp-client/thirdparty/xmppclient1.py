@@ -54,8 +54,8 @@ class IoT_Client(sleekxmpp.ClientXMPP):
             if len(fields) > 0:
                 print "Name\t\tType\tValue\tUnit"
                 print "aaa"
-            for field in fields:
-                print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
+            # for field in fields:
+            #      print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
             self.disconnect()
 
     def testForRelease(self):
