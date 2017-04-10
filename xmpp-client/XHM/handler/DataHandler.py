@@ -180,12 +180,12 @@ def datahandler_handle_event_req(self, iq):
 
         self.sessions[session]["node_list"] = process_nodes;
 
-        if not request_delay_sec is None:
-            # Delay request to requested time
-            timer = Timer(request_delay_sec, self._event_delayed_req, args=(session, process_fields, req_flags))
-            self.sessions[session]["commTimers"]["delaytimer"] = timer;
-            timer.start();
-            return
+        # if not request_delay_sec is None:
+        #     # Delay request to requested time
+        #     timer = Timer(request_delay_sec, self._event_delayed_req, args=(session, process_fields, req_flags))
+        #     self.sessions[session]["commTimers"]["delaytimer"] = timer;
+        #     timer.start();
+        #     return
 
         if self.threaded:
             # print("starting thread")
