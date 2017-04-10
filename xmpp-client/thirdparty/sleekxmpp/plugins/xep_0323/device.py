@@ -245,7 +245,7 @@ class Device(object):
             flags = {};
         
         flags["momentary"] = "true"
-        self.momentary_data[name] = {"value": value, "flags": flags};
+        self.momentary_data[name] = {"value": str(value), "flags": flags};
         return True;
 
     def _set_momentary_timestamp(self, timestamp):
