@@ -6,3 +6,16 @@
     See the file LICENSE for copying permission.
 """
 import sleekxmpp
+
+from sleekxmpp import stanza
+from sleekxmpp.jid import JID, InvalidJID
+from sleekxmpp.xmlstream.stanzabase import ET, ElementBase, register_stanza_plugin
+from sleekxmpp.xmlstream.handler import *
+from sleekxmpp.xmlstream import XMLStream, RestartStream
+from sleekxmpp.xmlstream.matcher import *
+from sleekxmpp.basexmpp import BaseXMPP
+from sleekxmpp.clientxmpp import ClientXMPP
+from sleekxmpp.componentxmpp import ComponentXMPP
+from phue import phue
+
+from sleekxmpp.version import __version__, __version_info__
