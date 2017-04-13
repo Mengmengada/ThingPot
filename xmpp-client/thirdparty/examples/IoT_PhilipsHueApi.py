@@ -23,6 +23,8 @@ from time import sleep
 # clone the git clone https://github.com/studioimaginaire/phue.git at parallel directory to SleekXMPP
 # or install in python
 # This can be used when you are in a test environment and need to make paths right
+
+#Basically this is to register the light on xmpp server and then we can get the information of these lights -Meng
 sys.path=[os.path.join(os.path.dirname(__file__), '../..'),os.path.join(os.path.dirname(__file__), '../../../phue')]+sys.path
 
 bridge=None
@@ -83,7 +85,7 @@ class BridgeContainer():
                     # try to find a bridge with meethue api
                     logging.debug("will try finding the hue bridge")
                     print "1111"
-                    localbridge=json.loads(urlopen('http://www.meethue.com/api/nupnp').read())
+                    localbridge=json.loads(urlopen(' /nupnp').read())
                     ip=localbridge[0]["internalipaddress"]
                     logging.info('connecting to localbridge at '+str(ip))
                     print "????"
@@ -276,7 +278,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         self.get_roster()
         # tell your preffered friend that you are alive 
         # self.send_message(mto='jabberjocke@jabber.se', mbody=self.boundjid.full +' is online use xep_323 to talk to me')
-        
+        self.send_message(mto='meng@xmpp.jp', mbody=self.boundjid.full +' is online +++++++++++++++++++++++++++++++')
         if self.joinMucRoom: #getting all the available node?   ---Meng
             logging.info("joining MUC room "+self.room+" as " +self.nick)
             self.plugin['xep_0045'].joinMUC(self.room,self.nick,wait=False)
@@ -349,14 +351,14 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
                     jid=self.boundjid.full
             else:
                 jid=self.boundjid.full
-            self.send_message(mto=replyto, mbody=u" ".join((
-                'I am',
-                jid,
-                'and I am on localIP',
-                localip,
-                'and on internet',
-                internetip
-            )))
+            # self.send_message(mto=replyto, mbody=u" ".join((
+            #     'I am',
+            #     jid,
+            #     'and I am on localIP',
+            #     localip,
+            #     'and on internet',
+            #     internetip
+            # )))
             return
         
         options = {}
@@ -418,11 +420,11 @@ class TheDevice(SensorDevice,ControlDevice):
         state=bridge.getAll()
 
         myDevice._add_field_momentary_data("transitiontime", str(bridge.transitiontime), flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-        myDevice._add_field_momentary_data("hue", state['hue'], flags={"automaticReadout": "true","momentary":"true","writable":"true"})
+        # myDevice._add_field_momentary_data("hue", state['hue'], flags={"automaticReadout": "true","momentary":"true","writable":"true"})
         myDevice._add_field_momentary_data("on", state['on'], flags={"automaticReadout": "true","momentary":"true","writable":"true"})
         myDevice._add_field_momentary_data("toggle", False, flags={"automaticReadout": "true","momentary":"true","writable":"true"})
         myDevice._add_field_momentary_data("bri", state['bri'], flags={"automaticReadout": "true","momentary":"true","writable":"true"});
-        myDevice._add_field_momentary_data("sat", state['sat'], flags={"automaticReadout": "true","momentary":"true","writable":"true"});
+        # myDevice._add_field_momentary_data("sat", state['sat'], flags={"automaticReadout": "true","momentary":"true","writable":"true"});
         
 
     def _set_field_value(self, name,value):
@@ -503,7 +505,7 @@ if __name__ == '__main__':
     logging.debug("setting the individual to" + str(opts.individual))
 
     #connect to a bridge, use dummy true if you don't have a gateway nearby for testing 
-    bridge=BridgeContainer(individual=opts.individual,ip=opts.bridgeip,dummy=True)
+    bridge=BridgeContainer(individual=opts.individual,ip=opts.bridgeip,dummy=False)
     
     #start up the XMPP client
     xmpp = IoT_TestDevice(opts.jid+ "/" + opts.nodeid,opts.password)
