@@ -127,7 +127,7 @@ class ControlSet(ElementBase):
             value      -- The value of the data element
         """
         if name not in self._datas:
-            dataObj = None;
+            dataObj = {};
             if typename == "boolean":
                 dataObj = BooleanParameter(parent=self);
             elif typename == "color":
@@ -150,7 +150,7 @@ class ControlSet(ElementBase):
                 dataObj = TimeParameter(parent=self);
 
             dataObj['name'] = name;
-            dataObj['value'] = value;
+            dataObj['value'] = str(value);
 
             self._datas.add(name)
             self.iterables.append(dataObj)

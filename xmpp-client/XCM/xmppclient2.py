@@ -1,4 +1,6 @@
-
+########################################################################################################################
+#To control the philips hue
+#Author: Meng Wang
 import sys
 import logging
 import getpass
@@ -41,22 +43,8 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         se script below for the registration of the callback
         """
         print  result, from_jid
-        logging.debug("we got data %s from %s", str(result), from_jid)
-        if (result == "fields"):
-            header = 'XEP 302 Sensor Data'
-            # print('-' * PRINT_HEADER_LENGTH)
-            # gap = ' ' * ((PRINT_HEADER_LENGTH - len(header)) / 2)
-            # print(gap + header)
-            # print('-' * PRINT_HEADER_LENGTH)
-
-            logging.debug("RECV:" + str(fields))
-            print "receive"+str(fields)
-            if len(fields) > 0:
-                print "Name\t\tType\tValue\tUnit"
-                print "aaa"
-            # for field in fields:
-            #      print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
-            self.disconnect()
+        print "successful"
+        self.disconnect()
 
     def testForRelease(self):
         # todo thread safe
@@ -108,11 +96,11 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         #   Requesting data through XEP0323
         # -------------------------------------------------------------------------------------------
         #Here!!!!!!!!!!!!!!!!!!!!!!
-        session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
-                                                self.datacallback, flags={"momentary": "true"})
+        # session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
+        #                                         self.datacallback, flags={"momentary": "true"})
         # fields = (["on", "boolean", 1])
-        # fields = (["on", "boolean", 1], ["bri", "numeric", 120])
-        # session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields, ["tem"] )
+        fields = (["on", "boolean", 1], ["bri", "numeric", 120])
+        session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields, ["tem"] )
 
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):
