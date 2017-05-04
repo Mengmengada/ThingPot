@@ -98,9 +98,10 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         #Here!!!!!!!!!!!!!!!!!!!!!!
         # session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
         #                                         self.datacallback, flags={"momentary": "true"})
-        # fields = (["on", "boolean", 1])
-        fields = (["on", "boolean", 1], ["bri", "numeric", 120])
-        session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields, ["tem"] )
+        fields = (["on", "boolean", 1],["bri", "int", 254])
+        # fields = (["on", "boolean", 1], ["toggle", "boolean", 1])
+        # fields = (["bri", "numeric", 120], ["bri", "numeric", 12])
+        session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields )
 
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):
@@ -117,7 +118,8 @@ if __name__ == '__main__':
     #   Parsing Arguments
     # -------------------------------------------------------------------------------------------
     optp = OptionParser()
-
+    optp.add_option("-o", "--on", dest="on",
+                    help="JID to use")
     # JID and password options.
     optp.add_option("-j", "--jid", dest="jid",
                     help="JID to use")
@@ -127,6 +129,7 @@ if __name__ == '__main__':
     # IoT sensor jid
     optp.add_option("-c", "--sensorjid", dest="sensorjid",
                     help="Another device to call for data on", default=None)
+
 
     # Output verbosity options.
     optp.add_option('-q', '--quiet', help='set logging to ERROR',
@@ -145,7 +148,6 @@ if __name__ == '__main__':
     if opts.jid is None or opts.password is None or opts.sensorjid is None:
         optp.print_help()
         exit()
-
     # -------------------------------------------------------------------------------------------
     #   Starting XMPP with XEP0030, XEP0323, XEP0325
     # -------------------------------------------------------------------------------------------

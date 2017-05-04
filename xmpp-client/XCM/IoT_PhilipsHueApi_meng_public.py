@@ -18,13 +18,14 @@ import socket
 import json
 from urllib import urlopen
 from time import sleep
-
+#script to test
 # This is based on the phue python hue bridge software
 # clone the git clone https://github.com/studioimaginaire/phue.git at parallel directory to SleekXMPP
 # or install in python
 # This can be used when you are in a test environment and need to make paths right
 
 #Basically this is to register the light on xmpp server and then we can get the information of these lights -Meng
+#Modified by: Meng Wang
 sys.path=[os.path.join(os.path.dirname(__file__), '../..'),os.path.join(os.path.dirname(__file__), '../../../phue')]+sys.path
 
 bridge=None
@@ -55,7 +56,7 @@ from sleekxmpp.plugins.xep_0325.device import Device as ControlDevice
 from phue import Bridge
 class DummyBridge():
     def __init_(self):
-        logging.warning("You are know using a dummy bridge")
+        logging.warning("You are now using a dummy bridge")
     def set_light(self,dummy1,dummy2):
         logging.debug('dummybridge')
     def set_group(self,dummy1,dummy2):
@@ -143,17 +144,19 @@ class BridgeContainer():
             logging.debug(str(self.mybridge.get_light(self.individual)))
             return self.mybridge.get_light(self.individual)['state']
 
-    def toggle(self, dummy=None):
-        if self.individual:
-            if self.mybridge.get_light(self.individual)['state']['on']:
-                self.mybridge.set_light(self.individual, {'on': False})
+    def toggle(self, value=10, dummy=None):
+        while value:
+            if self.individual:
+                if self.mybridge.get_light(self.individual)['state']['on']:
+                    self.mybridge.set_light(self.individual, {'on': False})
+                else:
+                    self.mybridge.set_light(self.individual, {'on': True})
             else:
-                self.mybridge.set_light(self.individual, {'on': True})
-        else:
-            if self.mybridge.get_group(0)['action']['on']:
-                self.mybridge.set_group(0, {'on': False})
-            else:
-                self.mybridge.set_group(0, {'on': True})
+                if self.mybridge.get_group(0)['action']['on']:
+                    self.mybridge.set_group(0, {'on': False})
+                else:
+                    self.mybridge.set_group(0, {'on': True})
+        value = value-1
 
     def setOn(self, value):
         if self.individual:
@@ -520,11 +523,11 @@ if __name__ == '__main__':
     
     # Instansiate the device object
     myDevice = TheDevice(opts.nodeid);
-    myDevice._add_control_field(name="transitiontime", typename="numeric", value=50);
+    myDevice._add_control_field(name="transitiontime", typename="int", value=50);
     # myDevice._add_control_field(name="hue", typename="numeric", value=1);
     myDevice._add_control_field(name="on", typename="boolean", value=1);
     myDevice._add_control_field(name="toggle", typename="boolean", value=1);
-    myDevice._add_control_field(name="bri", typename="numeric", value=1);
+    myDevice._add_control_field(name="bri", typename="int", value=1);
     # myDevice._add_control_field(name="sat", typename="numeric", value=1);
     
     myDevice._add_field(name="transitiontime", typename="numeric", unit="ms")
