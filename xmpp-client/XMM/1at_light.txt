@@ -1,0 +1,24 @@
++++++++++++++++++++++update_sensor_data++++++++++++++++++++++++++++++++++
+temperature::::::1000
+(u'jabber.at', 7000)
+((((process called)))
+function process before return
+????process in shceduler
+====================================================
+====================================================
+====================================================
+_____________________________session_start____________________
+____________________datahandler_handle_event_req is called_____________________
+started threadStarting timer <_TimerReset(Thread-2, initial)>, timeout: 10
+
+someone is asking data , %s times 1
++++++++++++++++++++++update_sensor_data++++++++++++++++++++++++++++++++++
+temperature::::::1000
+(u'jabber.at', 7000)
+((((process called)))
+function process before return
+????process in shceduler
+====================================================
+====================================================
+====================================================
+_____________________________session_start____________________

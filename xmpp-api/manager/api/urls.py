@@ -16,11 +16,26 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from . import views
-
-
+import json
+#If there is a url without a $(end note), no matter what string after is, it will go to this url
+#This can be used to return a fixed template whatever the attacker send.
+# with open('api/template.json') as data:
+#     d = json.loads(data.read())
+# username=[]
+# for name in d["config"]["whitelist"]:
+#     username=name
+# print username
+# username = "15A1OA1gfdeyUEvPNxa54pW1J07-yQEntEkPkEGd"
 urlpatterns = [
     # url(r'executetest', views.ExecuteTest.as_view()),
     # url(r'add', views.AddObject.as_view()),
     # url(r'testlist', views.TestList.as_view()),
-    url(r'api', views.CreatUsers.as_view()),
+    url(r'api$', views.CreatUsers.as_view()), #to create user and return the username
+    url(r'^api/[\s\S]{40}$', views.GetAllInfo.as_view()),
+    url(r'^api/[\s\S]{40}/lights/2/state', views.SetLight2.as_view()),
+    url(r'^api/[\s\S]{40}/lights/1/state', views.SetLight1.as_view()),
+    # url(r'^api/'+username[0], views.GetAllInfo.as_view()),
+    # url(r'^api/'+username[0]+'/lights/2/state', views.SetLight2.as_view()),
+    # url(r'^api/'+username[0]+'/lights/1/state', views.SetLight1.as_view()),
+
 ]

@@ -25,6 +25,7 @@ from time import sleep
 # This can be used when you are in a test environment and need to make paths right
 
 #Basically this is to register the light on xmpp server and then we can get the information of these lights -Meng
+#For trying to combine with api
 #Modified by: Meng Wang
 sys.path=[os.path.join(os.path.dirname(__file__), '../..'),os.path.join(os.path.dirname(__file__), '../../../phue')]+sys.path
 
@@ -53,7 +54,9 @@ else:
     
 from sleekxmpp.plugins.xep_0323.device import Device as SensorDevice
 from sleekxmpp.plugins.xep_0325.device import Device as ControlDevice
-from phue import Bridge
+from phue_api import Bridge
+
+
 class DummyBridge():
     def __init_(self):
         logging.warning("You are now using a dummy bridge")
@@ -69,10 +72,10 @@ class DummyBridge():
     def get_group(self,dummy):
         logging.debug('dummybridge')
         return {u'action': {u'on': True, u'hue': 3000, u'colormode': u'xy', u'effect': u'none', u'xy': [0.64380000000000004, 0.34499999999999997], u'bri': 64, u'sat': 254, u'ct': 500}, u'lights': [u'1', u'2', u'3', u'4'], u'name': u'Lightset 0'}
-                      
+
 class BridgeContainer():
     
-    def __init__(self,transitiontime=50,individual=None,ip=None,dummy=False):
+    def __init__(self,transitiontime=50,individual=None,ip=None,apiusername=None, apiport=None, dummy=False):
         if dummy:
             self.mybridge=DummyBridge()
             self.individual=1
@@ -90,7 +93,7 @@ class BridgeContainer():
                     ip=localbridge[0]["internalipaddress"]
                     logging.info('connecting to localbridge at '+str(ip))
                     print "????"
-                self.mybridge=Bridge(ip)
+                self.mybridge=Bridge(ip, apiusername, apiport)
                 self.mybridge.connect()
                 self.mybridge.get_api()
             except Exception as e:
@@ -103,7 +106,7 @@ class BridgeContainer():
         self.individual = None
         if individual:
             self.individual=int(individual)
-        self.alert()
+        # self.alert()
         
     def setTransitionTime(self,value):
         # this should be the transistion time in seconds
@@ -491,6 +494,10 @@ if __name__ == '__main__':
                     help="setting the control to an individual", default=None)
     optp.add_option("--bridgeip", dest="bridgeip",
                     help="This is where the bridge is", default=None)
+    optp.add_option("--apiusername", dest="apiusername",
+                    help="This is the username this device use", default=None)
+    optp.add_option("--apiport", dest="apiport",
+                    help="This is the port that the REST is running on", default=None)
     optp.add_option("--room", dest="room",
                     help="MUC room to connect to", default=None)
     
@@ -508,7 +515,7 @@ if __name__ == '__main__':
     logging.debug("setting the individual to " + str(opts.individual))
 
     #connect to a bridge, use dummy true if you don't have a gateway nearby for testing 
-    bridge=BridgeContainer(individual=opts.individual,ip=opts.bridgeip,dummy=False)
+    bridge=BridgeContainer(individual=opts.individual,ip=opts.bridgeip,apiusername=opts.apiusername,apiport=opts.apiport,dummy=False)
     
     #start up the XMPP client
     xmpp = IoT_TestDevice(opts.jid+ "/" + opts.nodeid,opts.password)
