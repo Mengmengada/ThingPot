@@ -74,7 +74,7 @@ class SetLight2(APIView):
         :param request: request
         :return: True or False
         """
-        logger.info("Request of changing the the status of the light")
+        logger.info("Request of changing the the status of the light 2, body of the put request is: " + request.body)
         # return Response([{"lights": {}, "groups": {}}])
         return Response(GetTemplate.set_light(2,request))
 
@@ -86,9 +86,35 @@ class SetLight1(APIView):
         :param request: request
         :return: True or False
         """
-        logger.info("Request of changing the the status of the light")
+        logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
         # return Response([{"lights": {}, "groups": {}}])
         return Response(GetTemplate.set_light(1, request))
+
+class GetLight1(APIView):
+    def get(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "GET Request of get the the info of the light 1")
+        # return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.get_light(1, request))
+
+class GetLight2(APIView):
+    def get(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "GET Request of get the the info of the light 2")
+        # return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.get_light(2, request))
 # class TestPost(APIView):
 #     def post(self, request):
 #         """

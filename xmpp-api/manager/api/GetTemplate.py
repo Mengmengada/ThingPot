@@ -21,3 +21,10 @@ def set_light(light_id, request):
     #     }
     # ]
     return key_list
+
+
+def get_light(light_id, request):
+    with open('api/template.json') as data:
+        d = json.loads(data.read())
+    r = d["lights"][str(light_id)]
+    return r

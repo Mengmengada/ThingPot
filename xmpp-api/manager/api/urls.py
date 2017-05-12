@@ -34,6 +34,8 @@ urlpatterns = [
     url(r'^api/[\s\S]{40}$', views.GetAllInfo.as_view()),
     url(r'^api/[\s\S]{40}/lights/2/state', views.SetLight2.as_view()),
     url(r'^api/[\s\S]{40}/lights/1/state', views.SetLight1.as_view()),
+    url(r'^api/[\s\S]{40}/lights/1$', views.GetLight1.as_view()),
+    url(r'^api/[\s\S]{40}/lights/2$', views.GetLight2.as_view()),
     # url(r'^api/'+username[0], views.GetAllInfo.as_view()),
     # url(r'^api/'+username[0]+'/lights/2/state', views.SetLight2.as_view()),
     # url(r'^api/'+username[0]+'/lights/1/state', views.SetLight1.as_view()),
