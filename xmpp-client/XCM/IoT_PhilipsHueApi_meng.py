@@ -117,9 +117,10 @@ class BridgeContainer():
         if self.transitiontime >= 0:
             options['transitiontime'] = self.transitiontime
         if self.individual:
-            self.mybridge.set_light(self.individual, options)
+            result = self.mybridge.set_light(self.individual, options)
         else:
-            self.mybridge.set_group(0, options)
+            result=self.mybridge.set_group(0, options)
+        return result
 
     def getAll(self):
         # returns dictionary with all values
@@ -303,6 +304,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         'hue': lambda self, v: { 'hue': int(v) },
         'sat': lambda self, v: { 'sat': int(v) },
         'bri': lambda self, v: { 'bri': int(v) },
+        # 'bri': lambda self, v: {'bri': v},
         'effect': lambda self, v: { 'effect': v },
         'fx': lambda self, v: { 'effect': v },
         'time': lambda self, v: self.set_time(v),
@@ -393,7 +395,8 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
             self.send_message(mto=replyto, mbody="I have no idea why someone would use words like %s. I do love words like %s, and %s though." % (unknown, ", ".join(words[:-1]), words[-1]))
 
         if len(options) > 0:
-            bridge.sendAll(**options)
+            result = bridge.sendAll(**options)
+            self.send_message(mto=replyto, mbody=str(result))
 
             
 class TheDevice(SensorDevice,ControlDevice):

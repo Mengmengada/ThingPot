@@ -115,6 +115,58 @@ class GetLight2(APIView):
             "GET Request of get the the info of the light 2")
         # return Response([{"lights": {}, "groups": {}}])
         return Response(GetTemplate.get_light(2, request))
+
+class GetLights(APIView):
+    def get(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "GET Request of get the the info of the lights : " + request.body)
+        # return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.get_light(None, request))
+
+class GetConfig(APIView):
+    def get(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "GET Request of get the the info of the Config")
+        #return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.get_config(request))
+    def put(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "PUT Request of set the name of the bridge: " + request.body)
+        # return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.set_config(request))
+
+class DelUsr(APIView):
+    def delete(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        logger.info(
+            "DELETE Request to delete user in whitelist")
+        # return Response([{"lights": {}, "groups": {}}])
+        return Response(GetTemplate.err_msg(request))
+
+
 # class TestPost(APIView):
 #     def post(self, request):
 #         """

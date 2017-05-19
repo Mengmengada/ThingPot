@@ -100,13 +100,13 @@ class BridgeContainer():
                 logging.warn('failed to connect to HUE server did you push the button?')
                 self.mybridge=None    
 
-            sleep(10)
+            # sleep(10)
 
         self.transitiontime = transitiontime
         self.individual = None
         if individual:
             self.individual=int(individual)
-        # self.alert()
+        self.alert()
         
     def setTransitionTime(self,value):
         # this should be the transistion time in seconds
@@ -120,10 +120,10 @@ class BridgeContainer():
         if self.transitiontime >= 0:
             options['transitiontime'] = self.transitiontime
         if self.individual:
-            self.mybridge.set_light(self.individual, options)
+            result = self.mybridge.set_light(self.individual, options)
         else:
-            self.mybridge.set_group(0, options)
-
+            result = self.mybridge.set_group(0, options)
+        return result
     def getAll(self):
         # returns dictionary with all values
         # {"state": {"on":true,"bri":254,"hue":45000,"sat":253,"xy":[0.1914,0.0879],"ct":500,"alert":"select","effect":"none","colormode":"hs","reachable":true},
@@ -381,6 +381,8 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
                 unknown.append(word)
             else:
                 res = self.commands[word](self, value)
+                self.send_message(mto=replyto,
+                                  mbody="ok!")
                 if isinstance(res, dict):
                     options.update(res)
                 elif isinstance(res, (unicode, str)):
@@ -396,8 +398,8 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
             self.send_message(mto=replyto, mbody="I have no idea why someone would use words like %s. I do love words like %s, and %s though." % (unknown, ", ".join(words[:-1]), words[-1]))
 
         if len(options) > 0:
-            bridge.sendAll(**options)
-
+            result = bridge.sendAll(**options)
+            self.send_message(mto=replyto, mbody=str(result))
             
 class TheDevice(SensorDevice,ControlDevice):
     """

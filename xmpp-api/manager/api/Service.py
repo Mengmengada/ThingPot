@@ -1,7 +1,7 @@
 import re
 import requests
 import json
-
+import string, random
 def parseheaders(self, request):
     """
     Method to parse the headers from the request because django requests are weird
@@ -14,3 +14,7 @@ def parseheaders(self, request):
         in request.META.items() if header.startswith('HTTP_')
     )
     return headers
+
+def gen_rand_str():
+    ran_str = ''.join(random.choice(string.lowercase + string.digits + string.uppercase) for x in range(40))
+    return ran_str
