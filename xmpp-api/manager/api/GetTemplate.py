@@ -71,6 +71,6 @@ def set_config(request):
 
 def err_msg(request):
     usrname = Service.gen_rand_str()
-    r=[{"error": {"type": 3,"address": "/config/" + usrname,"description": "resource, /config/dfdf, not available"}}]
+    r=[{"error": {"type": 3,"address": "/config/whitelist/" + usrname,"description": "resource, /config/whitelist/"+usrname+", not available"}}]
     print r
     return r

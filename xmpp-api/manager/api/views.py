@@ -49,9 +49,10 @@ class CreatUsers(APIView):
         :return: True or False
         """
         logger.info("A new request of creating user")
-        logger.info("the request body is: "+request.body.decode('utf-8'))
-        print Service.parseheaders(self, request)
-        return Response([{"success":{"username": "15A1OA1gfdeyUEvPNxa54pW1J07-yQEntEkPkEGd"}}])
+        logger.info("the request body is: "+request.body)
+        # print Service.parseheaders(self, request)
+        var = str(Service.gen_rand_str())
+        return Response([{"success":{"username": var}}])
         # return Response(Service.parseheaders(self, request))
         # return Response(request)
 class GetAllInfo(APIView):
