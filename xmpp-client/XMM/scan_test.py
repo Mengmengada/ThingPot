@@ -3,7 +3,7 @@ import os
 import XCM.IoT_PhilipsHueApi_meng_api as test
 import threading
 
-DATA_FILE = "../XHC/phuehoneypot_config.yaml"
+DATA_FILE = "../XHC/phuehoneypot_config.yaml" # location of the configuration file
 data = yaml.load(open(DATA_FILE))
 filename = "phue_api_test"
 filepath = "../XLM/test"
