@@ -43,7 +43,9 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         se script below for the registration of the callback
         """
         print  result, from_jid
+        logging.info(result, from_jid)
         print "successful"
+        logging.info("succeful")
         self.disconnect()
 
     def testForRelease(self):

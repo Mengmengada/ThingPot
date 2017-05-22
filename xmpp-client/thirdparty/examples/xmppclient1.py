@@ -51,9 +51,9 @@ class IoT_Client(sleekxmpp.ClientXMPP):
 
             logging.debug("RECV:" + str(fields))
             print "receive"+str(fields)
-            if len(fields) > 0:
-                print "Name\t\tType\tValue\tUnit"
-                print "aaa"
+            # if len(fields) > 0:
+            #     print "Name\t\tType\tValue\tUnit"
+            #     print "aaa"
             # for field in fields:
             #      print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
             self.disconnect()
@@ -98,11 +98,12 @@ class IoT_Client(sleekxmpp.ClientXMPP):
             #gap = ' ' * ((PRINT_HEADER_LENGTH - len(header)) / 2)
             # print(gap + header)
             # print('-' * PRINT_HEADER_LENGTH)
-
+            logging.debug("Device: %s" % self.target_jid)
             print "Device: %s" % self.target_jid
             #analysis the features of the target device
             for feature in info['disco_info']['features']:
                 print('  - %s' % feature)
+                logging.debug('  - %s' % feature)
 
         # -------------------------------------------------------------------------------------------
         #   Requesting data through XEP0323
