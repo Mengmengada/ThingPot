@@ -147,7 +147,7 @@ class BridgeContainer():
             logging.debug(str(self.mybridge.get_light(self.individual)))
             return self.mybridge.get_light(self.individual)['state']
 
-    def toggle(self, value=10, dummy=None):
+    def toggle(self, value=1, dummy=None):
         while value:
             if self.individual:
                 if self.mybridge.get_light(self.individual)['state']['on']:
@@ -159,7 +159,7 @@ class BridgeContainer():
                     self.mybridge.set_group(0, {'on': False})
                 else:
                     self.mybridge.set_group(0, {'on': True})
-        value = value-1
+            value = value-1
 
     def setOn(self, value):
         if self.individual:
@@ -294,7 +294,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         reply=u"You had a question I cannot answer. Here's my status instead.\n"
         for key in ['on','bri','hue','sat','ct']:
             if status.has_key(key):
-                reply+="\n"+key+"="+status[key]
+                reply+="\n"+str(key)+"="+str(status[key])
         return reply
 
     def set_time(self, value):
