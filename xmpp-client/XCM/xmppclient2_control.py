@@ -43,7 +43,8 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         se script below for the registration of the callback
         """
         print  result, from_jid
-        logging.info(result, from_jid)
+        logging.debug(result)
+        logging.debug(from_jid)
         print "successful"
         logging.info("succeful")
         self.disconnect()
@@ -90,9 +91,11 @@ class IoT_Client(sleekxmpp.ClientXMPP):
             # print('-' * PRINT_HEADER_LENGTH)
 
             print "Device: %s" % self.target_jid
+            logging.debug("Device: " + self.target_jid)
             #analysis the features of the target device
             for feature in info['disco_info']['features']:
                 print('  - %s' % feature)
+                logging.debug('  - ' + feature)
 
         # -------------------------------------------------------------------------------------------
         #   Requesting data through XEP0323
@@ -100,7 +103,7 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         #Here!!!!!!!!!!!!!!!!!!!!!!
         # session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
         #                                         self.datacallback, flags={"momentary": "true"})
-        fields = (["on", "boolean", 0],["bri", "int", 254])
+        fields = (["on", "boolean", 1],["bri", "int", 254])
         # fields = (["on", "boolean", 1], ["toggle", "boolean", 1])
         # fields = (["bri", "numeric", 120], ["bri", "numeric", 12])
         session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields )
