@@ -100,7 +100,7 @@ class BridgeContainer():
                 logging.warn('failed to connect to HUE server did you push the button?')
                 self.mybridge=None    
 
-            # sleep(10)
+            sleep(10)
 
         self.transitiontime = transitiontime
         self.individual = None
