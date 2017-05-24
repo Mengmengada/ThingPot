@@ -110,7 +110,7 @@ class IoT_Client(sleekxmpp.ClientXMPP):
         # -------------------------------------------------------------------------------------------
         #Here!!!!!!!!!!!!!!!!!!!!!!
         session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
-                                                self.datacallback, flags={"momentary": "true"})
+                                                self.datacallback, fields=["bdi"], flags={"momentary": "true"})
         # fields = (["on", "boolean", 1])
         # fields = (["on", "boolean", 1], ["bri", "numeric", 120])
         # session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields, ["tem"] )

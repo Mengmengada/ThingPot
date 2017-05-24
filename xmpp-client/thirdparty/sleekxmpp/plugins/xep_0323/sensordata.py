@@ -120,8 +120,8 @@ class XEP_0323(BasePlugin):
         self.xmpp.register_handler(
                 Callback('Sensordata Event:Req',
                     StanzaPath('iq@type=get/req'),
-                    self.connection_bind_event_req))
-
+                    # self.connection_bind_event_req))
+                    self._handle_event_req))
         self.xmpp.register_handler(
                 Callback('Sensordata Event:Accepted',
                     StanzaPath('iq@type=result/accepted'),
@@ -199,6 +199,8 @@ class XEP_0323(BasePlugin):
     # Sensor side (data provider) API
 
     def register_node(self, nodeId, device, commTimeout, sourceId=None, cacheType=None):
+        #TODO: add a parameter honeymod, to decide if start the honeypot mode.
+
         """
         Register a sensor/device as available for serving of data through this XMPP
         instance. 

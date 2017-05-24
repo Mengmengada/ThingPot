@@ -480,6 +480,8 @@ if __name__ == '__main__':
     optp.add_option('-v', '--verbose', help='set logging to COMM',
                     action='store_const', dest='loglevel',
                     const=5, default=logging.INFO)
+    optp.add_option("--logfile", dest="logfile",
+                    help="name of the log file", default=None)
 
     # JID and password options.
     optp.add_option("-j", "--jid", dest="jid",
@@ -501,7 +503,7 @@ if __name__ == '__main__':
 
      # Setup logging.
     logging.basicConfig(level=opts.loglevel,
-                        format='%(levelname)-8s %(message)s')
+                        format='%(asctime)s %(levelname)-8s %(message)s', filename= opts.logfile, filemode='w')
 
     if opts.jid is None:
         opts.jid = raw_input("Username: ")

@@ -1517,7 +1517,7 @@ class XMLStream(object):
                 break
 
     def __read_xml(self):
-        print "===================================================="
+        # print "===================================================="
         """Parse the incoming XML stream
 
         Stream events are raised for each received stanza.
