@@ -53,6 +53,22 @@ def get_config(request):
     r=d["config"]
     return r
 
+def get_whatever(request,_key):
+    key = str(_key)
+    with open('api/template.json') as data:
+        d = json.loads(data.read())
+    flag = False
+    for x in d:
+        if str(key) == x:
+            r = d[key]
+            flag = True
+    if flag == False:
+        r = error(4,key)
+    # r=d["config"]
+    return r
+
+
+
 def set_config(request):
     body_dic = json.loads(request.body)
     key_list = []
@@ -74,3 +90,8 @@ def err_msg(request):
     r=[{"error": {"type": 3,"address": "/config/whitelist/" + usrname,"description": "resource, /config/whitelist/"+usrname+", not available"}}]
     print r
     return r
+
+def error(type_id,req):
+    address = "/" + req
+    err=[{"error": {"type": type_id,"address": address, "description": "method, GET, not available for resource, "+address}}]
+    return err
