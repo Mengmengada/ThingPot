@@ -1,9 +1,8 @@
 #Author: Meng Wang
 #an xmpp client that supposed to have a sensor and provide data
-
+import sys
 from optparse import OptionParser
 from thirdparty import sleekxmpp
-
 from thirdparty.sleekxmpp.plugins.xep_0323.device import Device #plugin for iot xep
 import logging
 import socket
@@ -98,20 +97,44 @@ if __name__ == '__main__':
     optp.add_option('-d', '--debug', help='set logging to DEBUG',
                     action='store_const', dest='loglevel',
                     const=logging.DEBUG, default=logging.INFO)
+
+
+    #use the configuration file
+    # DATA_FILE = "../XHC/xclient1.yaml"
+    # data = yaml.load(open(DATA_FILE))
+    # jid = data['JID']['node'] + "@" + data['JID']['domain']
+    # nodeid = data['resource']
+    # password = data['password']
+    # jidmeng1 = "meng1@xmpp.jp"
+    # nodeid = "temperatu"
+    # passwordmeng1 = "xmpptest"
+
+    # Output verbosity options.
+    optp.add_option('-q', '--quiet', help='set logging to ERROR',
+                    action='store_const', dest='loglevel',
+                    const=logging.ERROR, default=logging.INFO)
+    # JID and password options.
+    optp.add_option("-j", "--jid", dest="jid",
+                    help="JID to use")
+    optp.add_option("-p", "--password", dest="password",
+                    help="password to use")
+
+    # IoT device id
+    optp.add_option("-n", "--nodeid", dest="nodeid",
+                    help="I am a device get ready to be called", default=None)
     opts, args = optp.parse_args()
 
     # Setup logging.
     logging.basicConfig(level=opts.loglevel,
                         format='%(levelname)-8s %(message)s')
-    #use the configuration file
-    DATA_FILE = "../XHC/xclient1.yaml"
-    data = yaml.load(open(DATA_FILE))
-    jid = data['JID']['node'] + "@" + data['JID']['domain']
-    nodeid = data['resource']
-    password = data['password']
-    # jidmeng1 = "meng1@xmpp.jp"
-    # nodeid = "temperatu"
-    # passwordmeng1 = "xmpptest"
+    if opts.jid is None or opts.password is None or opts.nodeid is None:
+        optp.print_help()
+        exit()
+
+    jid = opts.jid
+    nodeid = opts.nodeid
+    password = opts.password
+
     xmpp = Client_SendTemp(jid + "/" + nodeid, password)
     xmpp.register_plugin('xep_0030')
     xmpp.register_plugin('xep_0323')

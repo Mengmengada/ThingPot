@@ -523,7 +523,8 @@ class XEP_0325(BasePlugin):
                 iq['set'].add_node(nodeId);
         if fields is not None:
             for name, typename, value in fields:
-                iq['set'].add_data(name=name, typename=typename, value=value);
+                iq['set'].add_data(name, typename, value);
+                # iq['set'].add_data(name=name, typename=typename, value=value);
 
         self.sessions[seqnr] = {"from": iq['from'], "to": iq['to'], "callback": callback};
         iq.send(block=False); 
@@ -569,6 +570,7 @@ class XEP_0325(BasePlugin):
             error_msg = iq['setResponse']['error']['text'];
 
         callback = self.sessions[seqnr]["callback"];
-        callback(from_jid=from_jid, result=result, nodeIds=nodeIds, fields=fields, error_msg=error_msg);
-
+        callback(from_jid=from_jid, result=result, error_msg=error_msg)
+        # callback(from_jid=from_jid, result=result, nodeIds=nodeIds, fields=fields, error_msg=error_msg);
+        # callback()
     

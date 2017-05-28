@@ -1,0 +1,14 @@
+# Author: Meng Wang
+# Date: 27-03-2017
+# configuration file for xmpp-client. This is for making a lot of different JID listen together to wait for scans.
+ names:
+    - meng1
+    - meng2
+ domains:
+    - xmpp.jp
+    - jabber.at
+    - xmpp.nl
+ resources:
+    - temperature
+    - light
+    - brs

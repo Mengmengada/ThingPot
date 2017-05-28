@@ -238,13 +238,13 @@ class BaseXMPP(XMLStream):
         - The send queue processor
         - The scheduler
         """
-        print "((((process called)))"
+        # print "((((process called)))"
         for name in self.plugin:
             if not hasattr(self.plugin[name], 'post_inited'):
                 if hasattr(self.plugin[name], 'post_init'):
                     self.plugin[name].post_init()
                 self.plugin[name].post_inited = True
-        print "function process before return"
+        # print "function process before return"
         return XMLStream.process(self, *args, **kwargs)
 
     def register_plugin(self, plugin, pconfig={}, module=None):

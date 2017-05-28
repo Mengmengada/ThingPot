@@ -1,0 +1,27 @@
+# Author: Meng Wang
+# Date: 19-05-2017
+# configuration file for phue_api honeypot. This is for making a lot of different JID listen together to wait for scans.
+ names:
+    - smart-home-monitor
+    - sensor-monitor
+    - smarthomemonitor
+    - phuebridge
+    - lightsgroup
+    - lightgroup
+    - iot
+    - light
+    - home
+ domains:
+    - xmpp.jp
+    - jabber.at
+    - 4ept.net
+    - chatme.im
+    - jabber.network
+    - chinwag.im
+    - movim.eu
+    - morris.jusanet.org
+ resources:
+    - temperature
+    - light
+    - light1
+    - light2

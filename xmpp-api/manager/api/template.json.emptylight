@@ -1,0 +1,84 @@
+{"lights": {},
+  "groups": {},
+  "config": {
+    "name": "Philips hue",
+    "zigbeechannel": 15,
+    "bridgeid": "001788FFFE473057",
+    "mac": "00:17:88:47:30:57",
+    "dhcp": true,
+    "ipaddress": "172.10.1.11",
+    "netmask": "255.255.255.0",
+    "gateway": "172.10.1.1",
+    "proxyaddress": "none",
+    "proxyport": 0,
+    "UTC": "2017-05-10T09:26:54",
+    "localtime": "none",
+    "timezone": "none",
+    "modelid": "BSB002",
+    "datastoreversion": "59",
+    "swversion": "01036659",
+    "apiversion": "1.16.0",
+    "swupdate": {
+      "updatestate": 2,
+      "checkforupdate": false,
+      "devicetypes": {
+        "bridge": true,
+        "lights": [],
+        "sensors": []
+      },
+      "url": "",
+      "text": "BSB002 1.18.0",
+      "notify": false
+    },
+    "linkbutton": false,
+    "portalservices": true,
+    "portalconnection": "connected",
+    "portalstate": {
+      "signedon": true,
+      "incoming": true,
+      "outgoing": true,
+      "communication": "disconnected"
+    },
+    "factorynew": true,
+    "replacesbridgeid": null,
+    "backup": {
+      "status": "idle",
+      "errorcode": 0
+    },
+    "whitelist": {
+      "W6w4xVcxm5iknnxzzvdYIQSx3BM3XZ13svJ1tUXh": {
+        "last use date": "2017-05-04T08:54:26",
+        "create date": "2017-05-04T08:54:11",
+        "name": "python_hue"
+      },
+      "6HnOeqg5eyd7SKclGnKLX8nlEZshvJymS2R15nvN": {
+        "last use date": "2017-05-04T08:59:45",
+        "create date": "2017-05-04T08:59:45",
+        "name": "pc_hue"
+      }
+    }
+  },
+  "schedules": {},
+  "scenes": {},
+  "rules": {},
+  "sensors": {
+    "1": {
+      "state": {
+        "daylight": null,
+        "lastupdated": "none"
+      },
+      "config": {
+        "on": true,
+        "configured": false,
+        "sunriseoffset": 30,
+        "sunsetoffset": -30
+      },
+      "name": "Daylight",
+      "type": "Daylight",
+      "modelid": "PHDL00",
+      "manufacturername": "Philips",
+      "swversion": "1.0"
+    }
+  },
+  "resourcelinks": {}
+}

@@ -51,11 +51,11 @@ class IoT_Client(sleekxmpp.ClientXMPP):
 
             logging.debug("RECV:" + str(fields))
             print "receive"+str(fields)
-            if len(fields) > 0:
-                print "Name\t\tType\tValue\tUnit"
-                print "aaa"
-            for field in fields:
-                print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
+            # if len(fields) > 0:
+            #     print "Name\t\tType\tValue\tUnit"
+            #     print "aaa"
+            # for field in fields:
+            #      print "  - " + field["name"] + "\t" + field["typename"] + "\t" + field["value"] + "\t" + field["unit"]
             self.disconnect()
 
     def testForRelease(self):
@@ -84,6 +84,7 @@ class IoT_Client(sleekxmpp.ClientXMPP):
             # received. Non-blocking options would be to listen
             # for the disco_info event, or passing a handler
             # function using the callback parameter.
+            #here get iq
             info = self['xep_0030'].get_info(jid=self.target_jid,
                                              node=None,
                                              block=True)
@@ -97,17 +98,22 @@ class IoT_Client(sleekxmpp.ClientXMPP):
             #gap = ' ' * ((PRINT_HEADER_LENGTH - len(header)) / 2)
             # print(gap + header)
             # print('-' * PRINT_HEADER_LENGTH)
-
+            logging.debug("Device: %s" % self.target_jid)
             print "Device: %s" % self.target_jid
-
+            #analysis the features of the target device
             for feature in info['disco_info']['features']:
                 print('  - %s' % feature)
+                logging.debug('  - %s' % feature)
 
         # -------------------------------------------------------------------------------------------
         #   Requesting data through XEP0323
         # -------------------------------------------------------------------------------------------
+        #Here!!!!!!!!!!!!!!!!!!!!!!
         session = self['xep_0323'].request_data(self.boundjid.full, self.target_jid,
-                                                self.datacallback, flags={"momentary": "true"})
+                                                self.datacallback, fields=["bdi"], flags={"momentary": "true"})
+        # fields = (["on", "boolean", 1])
+        # fields = (["on", "boolean", 1], ["bri", "numeric", 120])
+        # session = self['xep_0325'].set_request(self.boundjid.full, self.target_jid, self.datacallback, fields, ["tem"] )
 
     def message(self, msg):
         if msg['type'] in ('chat', 'normal'):

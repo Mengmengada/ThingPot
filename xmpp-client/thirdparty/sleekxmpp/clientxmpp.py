@@ -151,9 +151,9 @@ class ClientXMPP(BaseXMPP):
         if address:
             self.dns_service = None
         else:
-            # address = (self.boundjid.host, 5222)
             address = (self.boundjid.host, 5222)
-            print address
+            # address = (self.boundjid.host, 7000)
+            # print address
             self.dns_service = 'xmpp-client'
         return XMLStream.connect(self, address[0], address[1],
                                  use_tls=use_tls, use_ssl=use_ssl,

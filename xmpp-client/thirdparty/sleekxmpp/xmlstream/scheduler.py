@@ -130,7 +130,7 @@ class Scheduler(object):
         self.wait_timeout = WAIT_TIMEOUT
 
     def process(self, threaded=True, daemon=False):
-        print "????process in shceduler"
+        # print "????process in shceduler"
 
         """Begin accepting and processing scheduled tasks.
 
