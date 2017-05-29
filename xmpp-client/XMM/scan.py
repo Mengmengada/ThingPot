@@ -2,10 +2,10 @@ import yaml
 import os
 import threading
 
-DATA_FILE = "../XHC/phuehoneypot_config.yaml"
+DATA_FILE = "../XHC/phuehoneypot_config.yaml" # the configuration file, which includes the xmpp accounts infomation
 data = yaml.load(open(DATA_FILE))
-filename = "phue_api"
-filepath = "../XLM/test"
+filename = "phue_api" #first part of the name of the log files
+filepath = "../XLM/test" # path to where the log files will be saved
 list = []
 for name in data["names"]:
     # print values
@@ -18,7 +18,9 @@ for name in data["names"]:
 def xmengpp_client(barejid,nodeid,filename):
     os.system("python ../XCM/xmengpp_client.py -j"+ barejid+" -n"+nodeid+" -p xmpptest -d ")
 def Phue_api(name, domain, resource,filename):
-    var = "python ../XCM/IoT_PhilipsHueApi_meng_api.py -j " + name + "@" + domain + " -n " + resource + " -p xmpptest1218 -d --individual 1 --bridgeip 127.0.0.1 --apiport 3000 --logfile " + filename
+    var = "python ../XCM/IoT_PhilipsHueApi_meng_api.py -j " + name + "@" \
+          + domain + " -n " + resource + \
+          " -p xmpptest1218 -d --individual 1 --bridgeip 127.0.0.1 --apiport 3000 --logfile " + filename
     # print var
     os.system(var)
 i=0
