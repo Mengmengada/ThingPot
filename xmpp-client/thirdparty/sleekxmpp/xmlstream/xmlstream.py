@@ -78,7 +78,7 @@ RECONNECT_MAX_ATTEMPTS = None
 
 
 log = logging.getLogger(__name__)
-
+log1 = logging.getLogger("log1")
 
 class RestartStream(Exception):
     """
@@ -1255,7 +1255,7 @@ class XMLStream(object):
                         return
 
         if mask is not None:
-            log.warning("Use of send mask waiters is deprecated.")
+            log1.warning("Use of send mask waiters is deprecated.")
             wait_for = Waiter("SendWait_%s" % self.new_id(),
                               MatchXMLMask(mask))
             self.register_handler(wait_for)
@@ -1308,7 +1308,7 @@ class XMLStream(object):
                                Defaults to :attr:`auto_reconnect`.
         """
         if now:
-            log.debug("SEND (IMMED): %s", data)
+            log1.info("SEND (IMMED): %s", data)
             try:
                 data = data.encode('utf-8')
                 total = len(data)
@@ -1327,7 +1327,7 @@ class XMLStream(object):
                             if tries >= self.ssl_retry_max:
                                 log.debug('SSL error: max retries reached')
                                 self.exception(serr)
-                                log.warning("Failed to send %s", data)
+                                log1.warning("Failed to send %s", data)
                                 if reconnect is None:
                                     reconnect = self.auto_reconnect
                                 if not self.stop.is_set():
@@ -1338,10 +1338,10 @@ class XMLStream(object):
                                 time.sleep(self.ssl_retry_delay)
                             tries += 1
                 if count > 1:
-                    log.debug('SENT: %d chunks', count)
+                    log1.info('SENT: %d chunks', count)
             except (Socket.error, ssl.SSLError) as serr:
                 self.event('socket_error', serr, direct=True)
-                log.warning("Failed to send %s", data)
+                log1.warning("Failed to send %s", data)
                 if reconnect is None:
                     reconnect = self.auto_reconnect
                 if not self.stop.is_set():
@@ -1529,7 +1529,7 @@ class XMLStream(object):
                 if depth == 0:
                     # We have received the start of the root element.
                     root = xml
-                    log.debug('RECV: %s', tostring(root, xmlns=self.default_ns,
+                    log1.debug('RECV: %s', tostring(root, xmlns=self.default_ns,
                                                          stream=self,
                                                          top_level=True,
                                                          open_only=True))
@@ -1547,7 +1547,7 @@ class XMLStream(object):
                 if depth == 0:
                     # The stream's root element has closed,
                     # terminating the stream.
-                    log.debug("End of stream recieved")
+                    log1.info("End of stream recieved")
                     self.stream_end_event.set()
                     return False
                 elif depth == 1:
@@ -1561,7 +1561,7 @@ class XMLStream(object):
                         # Keep the root element empty of children to
                         # save on memory use.
                         root.clear()
-        log.debug("Ending read XML loop")
+        log1.debug("Ending read XML loop")
 
     def _build_stanza(self, xml, default_ns=None):
         """Create a stanza object from a given XML object.
@@ -1610,7 +1610,7 @@ class XMLStream(object):
         if stanza is None:
             return
 
-        log.debug("RECV: %s", stanza)
+        log1.debug("RECV: %s", stanza)
 
         # Match the stanza against registered handlers. Handlers marked
         # to run "in stream" will be executed immediately; the rest will
@@ -1735,7 +1735,7 @@ class XMLStream(object):
                     data = self.send_queue.get()                                            # Wait for data to send
                     if data is None:
                         continue
-                log.debug("SEND: %s", data)
+                log1.info("SEND: %s", data)
                 enc_data = data.encode('utf-8')
                 total = len(enc_data)
                 sent = 0
@@ -1764,11 +1764,11 @@ class XMLStream(object):
                                     time.sleep(self.ssl_retry_delay)
                                 tries += 1
                     if count > 1:
-                        log.debug('SENT: %d chunks', count)
+                        log1.debug('SENT: %d chunks', count)
                     self.send_queue.task_done()
                 except (Socket.error, ssl.SSLError) as serr:
                     self.event('socket_error', serr, direct=True)
-                    log.warning("Failed to send %s", data)
+                    log1.warning("Failed to send %s", data)
                     if not self.stop.is_set():
                         self.__failed_send_stanza = data
                         self._end_thread('send')
