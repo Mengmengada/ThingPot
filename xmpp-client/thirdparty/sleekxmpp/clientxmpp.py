@@ -33,7 +33,7 @@ else:
 
 
 log = logging.getLogger(__name__)
-
+log1 = logging.getLogger('log1')
 
 class ClientXMPP(BaseXMPP):
 
