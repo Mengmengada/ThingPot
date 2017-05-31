@@ -7,6 +7,7 @@ data = yaml.load(open(DATA_FILE))
 filename = "phue_api"
 filepath = "../XLM/test"
 list = []
+apiusername = data["apiusername"][0]
 for name in data["names"]:
     # print values
     for domain in data["domains"]:
@@ -17,9 +18,9 @@ for name in data["names"]:
 #     print tuple[0]
 def xmengpp_client(barejid,nodeid,filename):
     os.system("python ../XCM/xmengpp_client.py -j"+ barejid+" -n"+nodeid+" -p xmpptest -d ")
-def Phue_api(name, domain, resource,filename):
-    var = "python ../XCM/IoT_PhilipsHueApi_meng_api.py -j " + name + "@" + domain + " -n " + resource + " -p xmpptest1218 -d --individual 1 --bridgeip 127.0.0.1 --apiport 3000 --logfile " + filename
-    # print var
+def Phue_api(name, domain, resource,apiusername,filename):
+    var = "python ../XCM/IoT_PhilipsHueApi_meng_api.py -j " + name + "@" + domain + " -n " + resource + " -p xmpptest1218 -d --individual 1 --bridgeip morris.jusanet.org --apiport 80 --apiusername " + apiusername+ " --logfile " + filename
+    print var
     os.system(var)
 i=0
 os.system("mkdir "+filepath)
@@ -27,7 +28,7 @@ for tuple in list:
     # file=filename+str(i)+".log"
     print tuple
     file = tuple[0]+"@"+tuple[1]+tuple[2]+".log"
-    task = threading.Thread(target=Phue_api, args=(tuple[0], tuple[1], tuple[2], filepath+"/"+file))
+    task = threading.Thread(target=Phue_api, args=(tuple[0], tuple[1], tuple[2],apiusername,filepath+"/"+file))
     task.start()
     # i+=1
 

@@ -51,7 +51,9 @@ if sys.version_info < (3, 0):
     setdefaultencoding('utf8')
 else:
     raw_input = input
-    
+
+import sys
+sys.path.append('../thirdparty')
 from sleekxmpp.plugins.xep_0323.device import Device as SensorDevice
 from sleekxmpp.plugins.xep_0325.device import Device as ControlDevice
 from phue_api import Bridge
@@ -499,7 +501,7 @@ if __name__ == '__main__':
     optp.add_option("--bridgeip", dest="bridgeip",
                     help="This is where the bridge is", default=None)
     optp.add_option("--apiusername", dest="apiusername",
-                    help="This is the username this device use", default=None)
+                    help="This is the username this device use to connect to the bridge api", default=None)
     optp.add_option("--apiport", dest="apiport",
                     help="This is the port that the REST is running on", default=None)
     optp.add_option("--room", dest="room",

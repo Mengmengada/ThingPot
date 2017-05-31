@@ -595,7 +595,7 @@ class Bridge(object):
 
 
     """
-    def __init__(self, ip=None, username=None,apiport=None, config_file_path=None):
+    def __init__(self, ip=None, username=None,apiport=None, config_file_path="/home/bitte/python_hue_conf.txt"):
         """ Initialization function.
 
         Parameters:
@@ -614,7 +614,6 @@ class Bridge(object):
             self.config_file_path = os.path.join(os.getenv(USER_HOME), 'Documents', '.python_hue_api')
         else:
             self.config_file_path = os.path.join(os.getcwd(), '.python_hue_api')
-
         self.ip = ip
         self.username = username
         self.lights_by_id = {}
@@ -661,14 +660,18 @@ class Bridge(object):
             raise PhueRequestTimeout(None, error)
 
         result = connection.getresponse()
-        connection.close()
+        # print result.read()
+        # connection.close()
+        # print result.read()
         if PY3K:
             return json.loads(str(result.read(), encoding='utf-8'))
         else:
             result_str = result.read()
-            logger.debug(result_str)
+            # print result.read()
+            logger.debug("RECV from HTTP: "+ result_str)
             return json.loads(result_str)
-
+        # print result_str
+        connection.close()
     def get_ip_address(self, set_result=False):
 
         """ Get the bridge ip address from the meethue.com nupnp api """
@@ -702,9 +705,15 @@ class Bridge(object):
 
     def register_app(self):
         """ Register this computer with the Hue bridge hardware and save the resulting access token """
+        logger.debug("registering the username")
         registration_request = {"devicetype": "python_hue"}
+        # print registration_request
         response = self.request('POST', '/api', registration_request)
+        # print response
+        # print "ddddd"
+        logger.debug("receiving:" + response)
         for line in response:
+            print line
             for key in line:
                 if 'success' in key:
                     with open(self.config_file_path, 'w') as f:
@@ -885,7 +894,7 @@ class Bridge(object):
             light_id_array = [light_id]
         result = []
         for light in light_id_array:
-            logger.debug(str(data))
+            # logger.debug(str(data))
             if parameter == 'name':
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     light_id), data))
