@@ -4,9 +4,17 @@ from rest_framework.views import APIView, Response
 import logging
 import GetTemplate
 import Service
-logging.basicConfig(level=logging.INFO)
+import time
+import datetime
+import json
+from django.core import serializers
+# FILENAME = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M')) + ".log"
+FILENAME="meng.log"
+LOGFILE = "log/" + FILENAME
+logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(levelname)-8s %(message)s', filename=LOGFILE, filemode='w')
 logger = logging.getLogger(__name__)
-
+entry_counter = 0
 
 # class TestList(APIView):
 #     def get(self, request):
@@ -50,9 +58,20 @@ class CreatUsers(APIView):
         """
         logger.info("A new request of creating user")
         logger.info("the request body is: "+request.body)
+
+        # print info
         # print Service.parseheaders(self, request)
         var = str(Service.gen_rand_str())
-        return Response([{"success":{"username": var}}])
+        res = [{"success":{"username": var}}]
+        info = {"type": request.method, "header": Service.parseheaders(self, request), "reply":res, "url":request.path}
+        print info
+        # data = serializers.serialize('json',request.META)
+        # for value in request.META:
+        #     if "HTTP" in value:
+        #         print "ADDED: " + value + " = " + request.META[value]
+        # with open(LOGFILE,'w') as outfile:
+        #     json.dump(data, outfile)
+        return Response(res)
         # return Response(Service.parseheaders(self, request))
         # return Response(request)
 class GetAllInfo(APIView):
@@ -63,9 +82,15 @@ class GetAllInfo(APIView):
         :param request: request
         :return: True or False
         """
+        global entry_counter
+        entry_counter += 1
         logger.info("Request of getting the information of the bridge")
+        res = GetTemplate.get_complete_template()
+        info = {"entry_id": entry_counter, "type": request.method, "header": Service.parseheaders(self, request), "reply": res,
+                "url": request.path}
+        logger.info(json.dumps(info))
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_complete_template())
+        return Response(res)
 
 class SetLight2(APIView):
     def put(self, request):
@@ -115,8 +140,12 @@ class GetLight(APIView):
         """
         logger.info(
             "GET Request of get the the info of the light " + light_id)
+        res = GetTemplate.get_light(light_id, request)
+        info = {"type": request.method, "header": Service.parseheaders(self, request), "reply": res,
+                "url": request.path}
+        print info
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_light(light_id, request))
+        return Response(res)
 
 # class GetLight1(APIView):
 #     def get(self, request):
@@ -155,8 +184,12 @@ class GetLights(APIView):
         """
         logger.info(
             "GET Request of get the the info of the lights : " + request.body)
+        res = GetTemplate.get_light(None, request)
+        info = {"type": request.method, "header": Service.parseheaders(self, request), "reply": res,
+                "url": request.path}
+        print info
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_light(None, request))
+        return Response(res)
 
 class GetConfig(APIView):
     def get(self, request):

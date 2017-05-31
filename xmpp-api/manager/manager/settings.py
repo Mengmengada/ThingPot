@@ -110,6 +110,41 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+# set the logging
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'filters': {
+#         'require_debug_false': {
+#             '()': 'django.utils.log.RequireDebugFalse'
+#         }
+#     },
+#     'handlers': {
+#         'mail_admins': {
+#             'level': 'ERROR',
+#             'filters': ['require_debug_false'],
+#             'class': 'django.utils.log.AdminEmailHandler'
+#         },
+#         'console': {
+#             'level':'DEBUG',
+#             'class':'logging.handlers.RotatingFileHandler',
+#             'filename': os.path.join(".", 'ddd.log'),
+#             'maxBytes': 1024*1024*15, # 15MB
+#             'backupCount': 10,
+#         },
+#         # 'console':{
+#         #   'class':'logging.StreamHandler',
+#         #   'filename': os.path.join(".", 'console.log'),
+#         # },
+#
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console', ],
+#             'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+#         }
+#     }
+# }
 
 
 # Internationalization
