@@ -1,6 +1,8 @@
 import re
 import requests
 import json
+import datetime
+import time
 import string, random
 def parseheaders(self, request):
     """
@@ -18,3 +20,9 @@ def parseheaders(self, request):
 def gen_rand_str():
     ran_str = ''.join(random.choice(string.lowercase + string.digits + string.uppercase) for x in range(40))
     return ran_str
+
+def gen_json_log(self, request, entry_counter, res):
+    info = {"time": datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M'),
+            "entry_id": entry_counter, "type": request.method, "header": parseheaders(self, request),
+            "reply": res, "url": request.path, "body": request.body}
+    return info

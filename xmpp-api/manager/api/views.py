@@ -8,11 +8,13 @@ import time
 import datetime
 import json
 from django.core import serializers
+
+
 # FILENAME = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M')) + ".log"
-FILENAME="meng.log"
-LOGFILE = "log/" + FILENAME
-logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)-8s %(message)s', filename=LOGFILE, filemode='w')
+# FILENAME="meng.log"
+# LOGFILE = "log/" + FILENAME
+# logging.basicConfig(level=logging.DEBUG,
+#                         format='%(asctime)s %(levelname)-8s %(message)s', filename=LOGFILE, filemode='w')
 logger = logging.getLogger(__name__)
 entry_counter = 0
 
@@ -72,8 +74,7 @@ class CreatUsers(APIView):
         # with open(LOGFILE,'w') as outfile:
         #     json.dump(data, outfile)
         return Response(res)
-        # return Response(Service.parseheaders(self, request))
-        # return Response(request)
+
 class GetAllInfo(APIView):
     def get(self, request):
         """
@@ -84,11 +85,13 @@ class GetAllInfo(APIView):
         """
         global entry_counter
         entry_counter += 1
-        logger.info("Request of getting the information of the bridge")
+        # logger.info("Request of getting the information of the bridge")
         res = GetTemplate.get_complete_template()
-        info = {"entry_id": entry_counter, "type": request.method, "header": Service.parseheaders(self, request), "reply": res,
-                "url": request.path}
-        logger.info(json.dumps(info))
+        # info = {"time": datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M') ,
+        #         "entry_id": entry_counter, "type": request.method, "header": Service.parseheaders(self, request),
+        #         "reply": res, "url": request.path}
+        infor = Service.gen_json_log(self,request,entry_counter,res)
+        logger.info(json.dumps(infor))
         # return Response([{"lights": {}, "groups": {}}])
         return Response(res)
 
