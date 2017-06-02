@@ -22,7 +22,8 @@ def gen_rand_str():
     return ran_str
 
 def gen_json_log(self, request, entry_counter, res):
-    info = {"time": datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M'),
+
+    info = {"time": datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M:%S'),
             "entry_id": entry_counter, "type": request.method, "header": parseheaders(self, request),
-            "reply": res, "url": request.path, "body": request.body}
+            "reply": res, "url": request.path, "body": request.body, "remote_ip": request.META['REMOTE_ADDR']}
     return info

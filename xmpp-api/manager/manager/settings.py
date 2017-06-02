@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'api.middlewarelogrequest.RequestLogging'
 
 ]
 CORS_ORIGIN_ALLOW_ALL = True
@@ -117,6 +118,9 @@ LOGGING = {
     'formatters':{
         'verbose':{
             'format': '%(asctime)s %(levelname)-8s %(message)s'
+        },
+        'simple':{
+            'format':'%(message)s'
         }
     },
     'handlers': {
@@ -124,12 +128,17 @@ LOGGING = {
             'level': 'DEBUG',
             'filename': 'log/api.log',
             'class': 'logging.FileHandler',
-            'formatter': 'verbose' ,
+            'formatter': 'simple' ,
         },
 
     },
     'loggers': {
         'api.views': {
+            'handlers': ['file', ],
+            'level': 'DEBUG',
+            # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+        },
+        'middleware.middlewarelogrequest': {
             'handlers': ['file', ],
             'level': 'DEBUG',
             # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
