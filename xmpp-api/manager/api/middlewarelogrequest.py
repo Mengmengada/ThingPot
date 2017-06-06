@@ -20,6 +20,6 @@ class RequestLogging(MiddlewareMixin):
         # print request.path + request._body_to_log
         global entry_counter
         entry_counter += 1
-        infor = Service.gen_json_log(self,request,entry_counter,json.loads(response._container[0]))
+        infor = Service.gen_json_log(self,request,entry_counter,response)
         logger.info(json.dumps(infor))
         return response
