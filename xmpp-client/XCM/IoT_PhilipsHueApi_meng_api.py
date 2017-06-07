@@ -18,6 +18,7 @@ import socket
 import json
 from urllib import urlopen
 from time import sleep
+import json_log_formatter # requires a pypi package for python called python-json-logger
 
 # This is based on the phue python hue bridge software
 # clone the git clone https://github.com/studioimaginaire/phue.git at parallel directory to SleekXMPP
@@ -84,7 +85,7 @@ class BridgeContainer():
             self.transitiontime = 50
             return
         
-        self.mybridge=None    
+        self.mybridge=None
         while not self.mybridge:
             try:
                 if not ip:
@@ -97,7 +98,7 @@ class BridgeContainer():
                     print "????"
                 self.mybridge=Bridge(ip, apiusername, apiport)
                 self.mybridge.connect()
-                self.mybridge.get_api()
+                # self.mybridge.get_api()
             except Exception as e:
                 logging.warn('failed to connect to HUE server did you push the button?')
                 self.mybridge=None    
@@ -108,7 +109,7 @@ class BridgeContainer():
         self.individual = None
         if individual:
             self.individual=int(individual)
-        self.alert()
+        # self.alert()
         
     def setTransitionTime(self,value):
         # this should be the transistion time in seconds
@@ -397,7 +398,9 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
                 unknown = "%s, or %s" % (', '.join(unknown[:-1]), unknown[-1])
             else:
                 unknown = unknown[0]
-            self.send_message(mto=replyto, mbody="I have no idea why someone would use words like %s. I do love words like %s, and %s though." % (unknown, ", ".join(words[:-1]), words[-1]))
+
+            self.send_message(mto=replyto, mbody="I have no idea why someone would use words like %s. I do love wo"
+                                                 "rds like %s, and %s though. Or visit me through web: morris.jusanet.org" % (unknown, ", ".join(words[:-1]), words[-1]))
 
         if len(options) > 0:
             result = bridge.sendAll(**options)
@@ -511,9 +514,15 @@ if __name__ == '__main__':
 
      # Setup logging.
 
-    logging.basicConfig(level=opts.loglevel,
-                        format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.logfile, filemode='w')
-
+    # logging.basicConfig(level=opts.loglevel,
+    #                     format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.logfile, filemode='w')
+    formatter = json_log_formatter.JSONFormatter('%(message)%(levelname)%(name)%(asctime)')
+    json_handler = logging.FileHandler(filename=opts.logfile)
+    json_handler.setFormatter(formatter)
+    logger = logging.getLogger('my_json')
+    logger.addHandler(json_handler)
+    logger.setLevel(logging.INFO)
+    logger.info("test", extra = {"object_type":"xmpp", "unexpected":True})
     if opts.jid is None:
         opts.jid = raw_input("Username: ")
     if opts.password is None:
