@@ -186,8 +186,8 @@ class GetSubInfo(APIView):
         :param request: request
         :return: True or False
         """
-        logger.info(
-            "GET Request of get the the info of the Config")
+        # logger.info(
+        #     "GET Request of get the the info of the Config")
         return Response(GetTemplate.get_whatever(request,key))
     def put(self, request, key):
         """

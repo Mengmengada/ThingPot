@@ -28,7 +28,7 @@ def set_light(light_id, request):
     key_list = []
     for key in body_dic.keys():
         key_list.append({"success": {"/lights/" + str(light_id) + "/" + key: body_dic[key]}})
-    print key_list
+    # print key_list
     # r = [{"success": key_list}]
     # d= [
     #     {

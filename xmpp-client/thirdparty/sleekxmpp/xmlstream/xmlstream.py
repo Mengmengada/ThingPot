@@ -78,8 +78,7 @@ RECONNECT_MAX_ATTEMPTS = None
 
 
 log = logging.getLogger(__name__)
-
-
+logger = logging.getLogger('json')
 class RestartStream(Exception):
     """
     Exception to restart stream processing, including
@@ -623,8 +622,9 @@ class XMLStream(object):
             resp = ''
             while '\r\n\r\n' not in resp and not self.stop.is_set():
                 resp += self.socket.recv(1024).decode('utf-8')
-            log.debug('RECV: %s', resp)
-
+            log.debug('RECV resp: %s', resp)
+            logger.debug("xmpp", extra={"unexpected": False, "type": "receive", "content": resp,
+                                        "jid": str(self.boundjid)})  # all received is here?
 
             lines = resp.split('\r\n')
             if '200' not in lines[0]:
@@ -1309,6 +1309,7 @@ class XMLStream(object):
         """
         if now:
             log.debug("SEND (IMMED): %s", data)
+            logger.debug("xmpp",extra={"unexpected":False,"type":"send","content":data,"jid":str(self.boundjid.full)})
             try:
                 data = data.encode('utf-8')
                 total = len(data)
@@ -1529,10 +1530,16 @@ class XMLStream(object):
                 if depth == 0:
                     # We have received the start of the root element.
                     root = xml
-                    log.debug('RECV: %s', tostring(root, xmlns=self.default_ns,
+                    log.debug('RECVsssssssss: %s', tostring(root, xmlns=self.default_ns,
                                                          stream=self,
                                                          top_level=True,
                                                          open_only=True))
+                    logger.debug("xmpp", extra={"unexpected": False, "type": "receive", "content": tostring(root, xmlns=self.default_ns,
+                                                         stream=self,
+                                                         top_level=True,
+                                                         open_only=True),
+                                                "jid": str(self.boundjid.full)})  # all received is here?
+
                     # Perform any stream initialization actions, such
                     # as handshakes.
                     self.stream_end_event.clear()
@@ -1611,7 +1618,7 @@ class XMLStream(object):
             return
 
         log.debug("RECV: %s", stanza)
-
+        logger.debug("xmpp", extra={"unexpected": False, "type": "receive", "content": str(stanza),"jid":str(self.boundjid.full)})#all received is here?
         # Match the stanza against registered handlers. Handlers marked
         # to run "in stream" will be executed immediately; the rest will
         # be queued.
@@ -1736,6 +1743,7 @@ class XMLStream(object):
                     if data is None:
                         continue
                 log.debug("SEND: %s", data)
+                logger.debug("xmpp3",  extra={"unexpected": False, "type": "send", "content": data,"jid":str(self.boundjid.full),"shared_id": self.shared_id})
                 enc_data = data.encode('utf-8')
                 total = len(enc_data)
                 sent = 0

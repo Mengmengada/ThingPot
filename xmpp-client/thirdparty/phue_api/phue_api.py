@@ -31,7 +31,7 @@ else:
     import httplib
 
 logger = logging.getLogger('phue')
-
+log1 = logging.getLogger('json')
 
 if platform.system() == 'Windows':
     USER_HOME = 'USERPROFILE'
@@ -89,7 +89,6 @@ class Light(object):
         self._reset_bri_after_on = None
         self._reachable = None
         self._type = None
-
     def __repr__(self):
         # like default python repr function, but add light name
         return '<{0}.{1} object "{2}" at {3}>'.format(
@@ -624,7 +623,8 @@ class Bridge(object):
         self.port = apiport
         # self.minutes = 600 # these do not seem to be used anywhere?
         # self.seconds = 10
-
+        self.shared_id = ""
+        self.boundjid = ""
         self.connect()
 
     @property
@@ -640,7 +640,10 @@ class Bridge(object):
         data = {'name': self._name}
         self.request(
             'PUT', '/api/' + self.username + '/config', data)
-
+    def update_shared_id(self,shared_id,boundjid):
+        self.boundjid=boundjid
+        self.shared_id=shared_id
+        # print self.shared_id
     def request(self, mode='GET', address=None, data=None):
         """ Utility function for HTTP GET/PUT requests for the API"""
         connection = httplib.HTTPConnection(self.ip, self.port, timeout=10)
@@ -649,14 +652,15 @@ class Bridge(object):
             if mode == 'GET' or mode == 'DELETE':
                 connection.request(mode, address)
             if mode == 'PUT' or mode == 'POST':
-                connection.request(mode, address, json.dumps(data))
+                connection.request(mode, address, json.dumps(data), headers={"shared_id":self.shared_id})
 
             logger.debug("{0} {1} {2}".format(mode, address, str(data)))
-
+            log1.debug("api",extra={"unexpected":True,"type":"send","mode":mode,"address": address,
+                                    "content":str(data),"shared_id":self.shared_id, "jid":str(self.boundjid)})
         except socket.timeout:
             error = "{} Request to {}{} timed out.".format(mode, self.ip, address)
 
-            logger.exception(error)
+            log1.exception(error)
             raise PhueRequestTimeout(None, error)
 
         result = connection.getresponse()
@@ -669,6 +673,7 @@ class Bridge(object):
             result_str = result.read()
             # print result.read()
             logger.debug("RECV from HTTP: "+ result_str)
+            log1.debug("api",extra={"unexpected":True,"type":"receive","content":json.loads(result_str),"shared_id":self.shared_id, "jid":str(self.boundjid)})
             return json.loads(result_str)
         # print result_str
         connection.close()

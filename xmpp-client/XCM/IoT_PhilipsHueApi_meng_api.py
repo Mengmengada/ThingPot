@@ -10,116 +10,154 @@
     See the file LICENSE for copying permission.
 """
 
-
-
 import os
 import sys
 import socket
 import json
 from urllib import urlopen
 from time import sleep
-import json_log_formatter # requires a pypi package for python called python-json-logger
+import XLM.logformatter
+
+# import json_log_formatter # requires a pypi package for python called python-json-logger
 
 # This is based on the phue python hue bridge software
 # clone the git clone https://github.com/studioimaginaire/phue.git at parallel directory to SleekXMPP
 # or install in python
 # This can be used when you are in a test environment and need to make paths right
 
-#Basically this is to register the light on xmpp server and then we can get the information of these lights -Meng
-#For trying to combine with api
-#Modified by: Meng Wang
-sys.path=[os.path.join(os.path.dirname(__file__), '../..'),os.path.join(os.path.dirname(__file__), '../../../phue')]+sys.path
+# Basically this is to register the light on xmpp server and then we can get the information of these lights -Meng
+# For trying to combine with api
+# Modified by: Meng Wang
+sys.path = [os.path.join(os.path.dirname(__file__), '../..'),
+            os.path.join(os.path.dirname(__file__), '../../../phue')] + sys.path
 
-bridge=None
-
+bridge = None
+xmpp = None
 import logging
 import unittest
 import distutils.core
 import datetime
+import time
 
 from glob import glob
 from os.path import splitext, basename, join as pjoin
 from optparse import OptionParser
 from urllib import urlopen
-
+import json_log_formatter
 import sleekxmpp
+
 # Python versions before 3.0 do not use UTF-8 encoding
 # by default. To ensure that Unicode is handled properly
 # throughout SleekXMPP, we will set the default encoding
 # ourselves to UTF-8.
 if sys.version_info < (3, 0):
     from sleekxmpp.util.misc_ops import setdefaultencoding
+
     setdefaultencoding('utf8')
 else:
     raw_input = input
 
 import sys
+
 sys.path.append('../thirdparty')
 from sleekxmpp.plugins.xep_0323.device import Device as SensorDevice
 from sleekxmpp.plugins.xep_0325.device import Device as ControlDevice
 from phue_api import Bridge
 
 
+# class CustomisedJSONFormatter(json_log_formatter.JSONFormatter):
+#     formatter = json_log_formatter.JSONFormatter('%(message)%(levelname)%(name)%(asctime)')
+#     json_handler = logging.StreamHandler()
+#     json_handler.setFormatter(formatter)
+#     logger = logging.getLogger('json')
+#     logger.addHandler(json_handler)
+#     logger.setLevel(logging.DEBUG)
+#
+#     def json_record(self, message, extra, jid, object_type):
+#         extra['message'] = message
+#         extra['JID'] = jid
+#         extra['object_type'] = object_type
+#         return extra
+
 class DummyBridge():
     def __init_(self):
         logging.warning("You are now using a dummy bridge")
-    def set_light(self,dummy1,dummy2):
+
+    def set_light(self, dummy1, dummy2):
         logging.debug('dummybridge')
-    def set_group(self,dummy1,dummy2):
+
+    def set_group(self, dummy1, dummy2):
         logging.debug('dummybridge')
-    def get_light(self,dummy):
+
+    def get_light(self, dummy):
         logging.debug('dummybridge')
-    def get_light(self,dummy):
+
+    def get_light(self, dummy):
         logging.debug('dummybridge')
-        return {u'name': u'Attic hall', u'swversion': u'66010820', u'pointsymbol': {u'1': u'0f0000ffff00003333000033330000ffffffffff', u'3': u'none', u'2': u'none', u'5': u'none', u'4': u'none', u'7': u'none', u'6': u'none', u'8': u'none'}, u'state': {u'on': True, u'hue': 25400, u'colormode': u'hs', u'effect': u'none', u'alert': u'select', u'xy': [0.41110000000000002, 0.51649999999999996], u'reachable': True, u'bri': 254, u'sat': 254, u'ct': 293}, u'type': u'Extended color light', u'modelid': u'LCT001'}
-    def get_group(self,dummy):
+        return {u'name': u'Attic hall', u'swversion': u'66010820',
+                u'pointsymbol': {u'1': u'0f0000ffff00003333000033330000ffffffffff', u'3': u'none', u'2': u'none',
+                                 u'5': u'none', u'4': u'none', u'7': u'none', u'6': u'none', u'8': u'none'},
+                u'state': {u'on': True, u'hue': 25400, u'colormode': u'hs', u'effect': u'none', u'alert': u'select',
+                           u'xy': [0.41110000000000002, 0.51649999999999996], u'reachable': True, u'bri': 254,
+                           u'sat': 254, u'ct': 293}, u'type': u'Extended color light', u'modelid': u'LCT001'}
+
+    def get_group(self, dummy):
         logging.debug('dummybridge')
-        return {u'action': {u'on': True, u'hue': 3000, u'colormode': u'xy', u'effect': u'none', u'xy': [0.64380000000000004, 0.34499999999999997], u'bri': 64, u'sat': 254, u'ct': 500}, u'lights': [u'1', u'2', u'3', u'4'], u'name': u'Lightset 0'}
+        return {u'action': {u'on': True, u'hue': 3000, u'colormode': u'xy', u'effect': u'none',
+                            u'xy': [0.64380000000000004, 0.34499999999999997], u'bri': 64, u'sat': 254, u'ct': 500},
+                u'lights': [u'1', u'2', u'3', u'4'], u'name': u'Lightset 0'}
+
 
 class BridgeContainer():
-    
-    def __init__(self,transitiontime=50,individual=None,ip=None,apiusername=None, apiport=None, dummy=False):
+    def __init__(self, transitiontime=50, individual=None, ip=None, apiusername=None, apiport=None, dummy=False):
         if dummy:
-            self.mybridge=DummyBridge()
-            self.individual=1
+            self.mybridge = DummyBridge()
+            self.individual = 1
             self.transitiontime = 50
             return
-        
-        self.mybridge=None
+        self.shared_id = ""
+        self.boundjid = ""
+        self.mybridge = None
         while not self.mybridge:
             try:
                 if not ip:
                     # try to find a bridge with meethue api
                     logging.debug("will try finding the hue bridge")
                     print "1111"
-                    localbridge=json.loads(urlopen('meethue.com/api/nupnp').read())
-                    ip=localbridge[0]["internalipaddress"]
-                    logging.info('connecting to localbridge at '+str(ip))
+                    localbridge = json.loads(urlopen('meethue.com/api/nupnp').read())
+                    ip = localbridge[0]["internalipaddress"]
+                    logging.info('connecting to localbridge at ' + str(ip))
                     print "????"
-                self.mybridge=Bridge(ip, apiusername, apiport)
+                self.mybridge = Bridge(ip, apiusername, apiport)
                 self.mybridge.connect()
                 # self.mybridge.get_api()
             except Exception as e:
                 logging.warn('failed to connect to HUE server did you push the button?')
-                self.mybridge=None    
+                self.mybridge = None
 
-            sleep(10)
+            sleep(3)
 
         self.transitiontime = transitiontime
         self.individual = None
         if individual:
-            self.individual=int(individual)
-        # self.alert()
-        
-    def setTransitionTime(self,value):
+            self.individual = int(individual)
+            # self.alert()
+
+    def setTransitionTime(self, value):
         # this should be the transistion time in seconds
         self.transitiontime = int(10 * float(value))
-
+    def update_shared_id(self):
+        self.shared_id=xmpp.shared_id
+        self.boundjid=xmpp.boundjid.full
+        print xmpp.boundjid.full
+        print xmpp.shared_id
+        self.mybridge.update_shared_id(self.shared_id,self.boundjid)
     def sendAll(self, **options):
         lamp = self.individual or 0
-        for k,v in options.iteritems():
+        self.update_shared_id()
+        for k, v in options.iteritems():
             if v is None:
-                del(options[k])
+                del (options[k])
         if self.transitiontime >= 0:
             options['transitiontime'] = self.transitiontime
         if self.individual:
@@ -127,6 +165,7 @@ class BridgeContainer():
         else:
             result = self.mybridge.set_group(0, options)
         return result
+
     def getAll(self):
         # returns dictionary with all values
         # {"state": {"on":true,"bri":254,"hue":45000,"sat":253,"xy":[0.1914,0.0879],"ct":500,"alert":"select","effect":"none","colormode":"hs","reachable":true},
@@ -162,7 +201,7 @@ class BridgeContainer():
                     self.mybridge.set_group(0, {'on': False})
                 else:
                     self.mybridge.set_group(0, {'on': True})
-            value = value-1
+            value = value - 1
 
     def setOn(self, value):
         if self.individual:
@@ -173,21 +212,19 @@ class BridgeContainer():
 
     def alert(self, dummy=None):
         if self.individual:
-            self.mybridge.set_light(self.individual, {'alert':'select'})    
+            self.mybridge.set_light(self.individual, {'alert': 'select'})
         else:
-            self.mybridge.set_group(0, {'alert':'select'})    
+            self.mybridge.set_group(0, {'alert': 'select'})
 
 
-#from sleekxmpp.exceptions import IqError, IqTimeout
-
+        # from sleekxmpp.exceptions import IqError, IqTimeout
 
 
 class IoT_TestDevice(sleekxmpp.ClientXMPP):
-
     """
     A simple IoT device that can act as server or client both on xep 323 and 325
     """
-    
+
     def __init__(self, jid, password):
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
 
@@ -195,26 +232,31 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         self.register_plugin('xep_0323')
         self.register_plugin('xep_0325')
         self.register_plugin('xep_0045')
-        self.register_plugin('xep_0199') # XMPP ping
+        self.register_plugin('xep_0199')  # XMPP ping
 
         self.add_event_handler("session_start", self.session_start)
         self.add_event_handler("message", self.message)
-        self.add_event_handler("changed_status",self.manage_status)
+        self.add_event_handler("changed_status", self.manage_status)
 
-        #Some local status variables to use
-        self.device=None
-        self.beServer=True
-        self.joinMucRoom=False
-        self.clientJID=None
-        self.controlJID=None
-        self.received=set()
-        self.controlField=None
-        self.controlValue=None
-        self.toggle=0
-        self.room=""
-        self.nick=""
+        # Some local status variables to use
+        self.device = None
+        self.beServer = True
+        self.joinMucRoom = False
+        self.clientJID = None
+        self.controlJID = None
+        self.received = set()
+        self.controlField = None
+        self.controlValue = None
+        self.toggle = 0
+        self.room = ""
+        self.nick = ""
+        self.shared_id = ""
 
-    def datacallback(self,from_jid,result,nodeId=None,timestamp=None,fields=None,error_msg=None):
+    def update_shared_id(self):
+        self.shared_id = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M:%S')) + str(
+            self.boundjid)
+
+    def datacallback(self, from_jid, result, nodeId=None, timestamp=None, fields=None, error_msg=None):
         """
         This method will be called when you ask another IoT device for data with the xep_0323
         se script below for the registration of the callback
@@ -223,37 +265,37 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         {'typename': 'numeric', 'unit': 'mb', 'flags': {'momentary': 'true', 'automaticReadout': 'true'}, 'name': 'barometer', 'value': '1015.0'},
         {'typename': 'numeric', 'unit': '%', 'flags': {'momentary': 'true', 'automaticReadout': 'true'}, 'name': 'humidity', 'value': '78.0'}]
         """
-        
+
         if error_msg:
             logging.error('we got problem when recieving data %s', error_msg)
             return
-        
-        if result=='accepted':
-            logging.debug("we got accepted from %s",from_jid)            
-        elif result=='fields':
-            logging.info("we got fields from %s with node %s",from_jid,nodeId)
+
+        if result == 'accepted':
+            logging.debug("we got accepted from %s", from_jid)
+        elif result == 'fields':
+            logging.info("we got fields from %s with node %s", from_jid, nodeId)
             for field in fields:
                 if field.has_key('unit'):
-                    logging.info("Field %s %s %s",field['name'],field['value'],field['unit'])
+                    logging.info("Field %s %s %s", field['name'], field['value'], field['unit'])
                 else:
-                    logging.info("Field %s %s",field['name'],field['value'])
-        elif result=='done':
-            logging.debug("we got  done from %s",from_jid)
+                    logging.info("Field %s %s", field['name'], field['value'])
+        elif result == 'done':
+            logging.debug("we got  done from %s", from_jid)
 
-    def controlcallback(self,from_jid,result,error_msg,nodeIds=None,fields=None):
+    def controlcallback(self, from_jid, result, error_msg, nodeIds=None, fields=None):
         """
         Called as respons to a xep_0325 control message 
         """
-        logging.info('Control callback from %s result %s error %s',from_jid,result,error_msg)
+        logging.info('Control callback from %s result %s error %s', from_jid, result, error_msg)
 
-    def getformcallback(self,from_jid,result,error_msg):    
+    def getformcallback(self, from_jid, result, error_msg):
         """
         called as respons to a xep_0325 get Form iq message
         """
-        logging.debug("IoT got a form "+str(result))
-        
+        logging.debug("IoT got a form " + str(result))
+
     def addDevice(self, device):
-        self.device=device
+        self.device = device
 
     def printRoster(self):
         logging.debug('Roster for %s' % self.boundjid.bare)
@@ -268,7 +310,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
                     logging.debug(' %s (%s) [%s]' % (name, jid, sub))
                 else:
                     logging.debug(' %s [%s]' % (jid, sub))
-                    
+
                 connections = self.client_roster.presence(jid)
                 for res, pres in connections.items():
                     show = 'available'
@@ -281,41 +323,41 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
     def manage_status(self, event):
         logging.debug("got a status update" + str(event.getFrom()))
         self.printRoster()
-        
+
     def session_start(self, event):
         self.send_presence()
         self.get_roster()
         # tell your preffered friend that you are alive 
         # self.send_message(mto='jabberjocke@jabber.se', mbody=self.boundjid.full +' is online use xep_323 to talk to me')
-        self.send_message(mto='meng@xmpp.jp', mbody=self.boundjid.full +' is online +++++++++++++++++++++++++++++++')
-        if self.joinMucRoom: #getting all the available node?   ---Meng
-            logging.info("joining MUC room "+self.room+" as " +self.nick)
-            self.plugin['xep_0045'].joinMUC(self.room,self.nick,wait=False)
+        self.send_message(mto='meng1@xmpp.jp', mbody=self.boundjid.full + ' is online')
+        if self.joinMucRoom:  # getting all the available node?   ---Meng
+            logging.info("joining MUC room " + self.room + " as " + self.nick)
+            self.plugin['xep_0045'].joinMUC(self.room, self.nick, wait=False)
 
     def help(self, dummy=None):
         status = bridge.get_state()
-        reply=u"You had a question I cannot answer. Here's my status instead.\n"
-        for key in ['on','bri','hue','sat','ct']:
+        reply = u"You had a question I cannot answer. Here's my status instead.\n"
+        for key in ['on', 'bri', 'hue', 'sat', 'ct']:
             if status.has_key(key):
-                reply+="\n"+str(key)+"="+str(status[key])
+                reply += "\n" + str(key) + "=" + str(status[key])
         return reply
 
     def set_time(self, value):
         bridge.setTransitionTime(float(value))
 
     commands = {
-        'on': lambda self, _: { 'on': True },
-        'off': lambda self, _ : { 'on': False },
-        'hue': lambda self, v: { 'hue': int(v) },
-        'sat': lambda self, v: { 'sat': int(v) },
-        'bri': lambda self, v: { 'bri': int(v) },
-        'effect': lambda self, v: { 'effect': v },
-        'fx': lambda self, v: { 'effect': v },
+        'on': lambda self, _: {'on': True},
+        'off': lambda self, _: {'on': False},
+        'hue': lambda self, v: {'hue': int(v)},
+        'sat': lambda self, v: {'sat': int(v)},
+        'bri': lambda self, v: {'bri': int(v)},
+        'effect': lambda self, v: {'effect': v},
+        'fx': lambda self, v: {'effect': v},
         'time': lambda self, v: self.set_time(v),
-        'strawberry': lambda self, _: { 'hue': 0, 'sat': 255, 'bri': 255 },
+        'strawberry': lambda self, _: {'hue': 0, 'sat': 255, 'bri': 255},
         'fields': lambda self, _: None,
         'forever': lambda self, _: None,
-        'orange': lambda self, _: { 'hue': 10000, 'sat': 255, 'bri': 192 },
+        'orange': lambda self, _: {'hue': 10000, 'sat': 255, 'bri': 192},
         'a': lambda self, _: bridge.alert(),
         'alert': lambda self, _: bridge.alert(),
         'alarm': lambda self, _: bridge.alert(),
@@ -327,39 +369,43 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
     }
 
     def message(self, msg):
-        if msg['type'] not in ('chat', 'normal','groupchat'):
+        self.update_shared_id()
+        logger.debug("xmpp",
+                     extra={"unexpected": False, "type": "receive", "content": str(msg), "jid": str(self.boundjid),
+                            "shared_id": self.shared_id})
+        if msg['type'] not in ('chat', 'normal', 'groupchat'):
             logging.debug("got unknown message type %s", str(msg['type']))
             return
-        
-        if msg['type']=='groupchat':
+
+        if msg['type'] == 'groupchat':
             if msg['mucnick'] == self.nick or self.nick in msg['body']:
                 logging.debug("mirror message from room throw away")
                 return
-        #always reply to full JID
-        replyto=msg['from'].full
+        # always reply to full JID
+        replyto = msg['from'].full
 
-        #parse the message
+        # parse the message
         cmd = msg['body'].lower().strip()
-        
+
         if cmd.endswith('?'):
-            #we send normal chat messages back
+            # we send normal chat messages back
             self.send_message(mto=replyto, mbody=self.help())
-            #msg.reply(self.help()).send()
+            # msg.reply(self.help()).send()
             ##msg['type']='chat'
             return
 
         if cmd.startswith('hi'):
             internetip = urlopen('http://icanhazip.com').read()
             localip = socket.gethostbyname(socket.gethostname())
-            jid=""
+            jid = ""
             if self.joinMucRoom:
-                #we need to keep some privacy in the MUC rooms
-                if msg['type']=='groupchat' or replyto.startswith(self.room) :
-                    jid=self.nick
+                # we need to keep some privacy in the MUC rooms
+                if msg['type'] == 'groupchat' or replyto.startswith(self.room):
+                    jid = self.nick
                 else:
-                    jid=self.boundjid.full
+                    jid = self.boundjid.full
             else:
-                jid=self.boundjid.full
+                jid = self.boundjid.full
             # self.send_message(mto=replyto, mbody=u" ".join((
             #     'I am',
             #     jid,
@@ -369,7 +415,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
             #     internetip
             # )))
             return
-        
+
         options = {}
         unknown = []
         for word in cmd.split():
@@ -400,13 +446,15 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
                 unknown = unknown[0]
 
             self.send_message(mto=replyto, mbody="I have no idea why someone would use words like %s. I do love wo"
-                                                 "rds like %s, and %s though. Or visit me through web: morris.jusanet.org" % (unknown, ", ".join(words[:-1]), words[-1]))
+                                                 "rds like %s, and %s though. Or visit me through web: morris.jusanet.org" % (
+                                                 unknown, ", ".join(words[:-1]), words[-1]))
 
         if len(options) > 0:
             result = bridge.sendAll(**options)
             self.send_message(mto=replyto, mbody=str(result))
-            
-class TheDevice(SensorDevice,ControlDevice):
+
+
+class TheDevice(SensorDevice, ControlDevice):
     """
     Xep 323 SensorDevice
     This is the actual device object that you will use to get information from your real hardware
@@ -415,50 +463,54 @@ class TheDevice(SensorDevice,ControlDevice):
     xep 325 ControlDevice
     This 
     """
-    def __init__(self,nodeId):
-        SensorDevice.__init__(self,nodeId)
-        ControlDevice.__init__(self,nodeId)
-        self.counter=0
-        self.relay=0
 
+    def __init__(self, nodeId):
+        SensorDevice.__init__(self, nodeId)
+        ControlDevice.__init__(self, nodeId)
+        self.counter = 0
+        self.relay = 0
 
-    def refresh(self,fields):
+    def refresh(self, fields):
         """
         the implementation of the refresh method
         """
-        status=bridge.get_state()
+        status = bridge.get_state()
 
         self._set_momentary_timestamp(self._get_timestamp())
         # getvalues from lamps
-        state=bridge.getAll()
+        state = bridge.getAll()
 
-        myDevice._add_field_momentary_data("transitiontime", str(bridge.transitiontime), flags={"automaticReadout": "true","momentary":"true","writable":"true"})
+        myDevice._add_field_momentary_data("transitiontime", str(bridge.transitiontime),
+                                           flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
         # myDevice._add_field_momentary_data("hue", state['hue'], flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-        myDevice._add_field_momentary_data("on", state['on'], flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-        myDevice._add_field_momentary_data("toggle", False, flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-        myDevice._add_field_momentary_data("bri", state['bri'], flags={"automaticReadout": "true","momentary":"true","writable":"true"});
+        myDevice._add_field_momentary_data("on", state['on'],
+                                           flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
+        myDevice._add_field_momentary_data("toggle", False,
+                                           flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
+        myDevice._add_field_momentary_data("bri", state['bri'],
+                                           flags={"automaticReadout": "true", "momentary": "true", "writable": "true"});
         # myDevice._add_field_momentary_data("sat", state['sat'], flags={"automaticReadout": "true","momentary":"true","writable":"true"});
-        
 
-    def _set_field_value(self, name,value):
+    def _set_field_value(self, name, value):
         """ overrides the set field value from device to act on my local values                                            
         """
-        logging.debug(" setting fields " + name + " to: " + str(value) )
-        if name=="hue":
+        logging.debug(" setting fields " + name + " to: " + str(value))
+        if name == "hue":
             bridge.setHue(int(value))
-        elif name=="transitiontime":
+        elif name == "transitiontime":
             bridge.setTransitionTime(float(value))
-        elif name=="bri":
+        elif name == "bri":
             bridge.setBri(int(value))
-        elif name=="sat":
+        elif name == "sat":
             bridge.setSat(int(value))
-        elif name=="toggle":
+        elif name == "toggle":
             bridge.toggle()
-        elif name=="on":
+        elif name == "on":
             bridge.setOn(int(value))
-        elif name=="alert":
+        elif name == "alert":
             bridge.alert()
-            
+
+
 if __name__ == '__main__':
 
     # Setup the command line arguments.
@@ -474,7 +526,7 @@ if __name__ == '__main__':
     #
     #   If no bridgeip is provided 
     #   TODO: clean up inheritage from IoT_TestDevice
-    
+
     optp = OptionParser()
 
     # Output verbosity options.
@@ -509,41 +561,48 @@ if __name__ == '__main__':
                     help="This is the port that the REST is running on", default=None)
     optp.add_option("--room", dest="room",
                     help="MUC room to connect to", default=None)
-    
+
     opts, args = optp.parse_args()
 
-     # Setup logging.
+    # Setup logging.
 
     # logging.basicConfig(level=opts.loglevel,
     #                     format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.logfile, filemode='w')
+    logging.basicConfig(level=opts.loglevel,
+                        format='%(asctime)s %(levelname)-8s %(message)s')
+    #
     formatter = json_log_formatter.JSONFormatter('%(message)%(levelname)%(name)%(asctime)')
-    json_handler = logging.FileHandler(filename=opts.logfile)
+    json_handler = logging.StreamHandler()  # later put it in one file! concatenating
     json_handler.setFormatter(formatter)
-    logger = logging.getLogger('my_json')
+    logger = logging.getLogger('json')
     logger.addHandler(json_handler)
-    logger.setLevel(logging.INFO)
-    logger.info("test", extra = {"object_type":"xmpp", "unexpected":True})
+    logger.setLevel(logging.DEBUG)
+    # logger.info("test",extra = {"aa,bb,cc":opts.nodeid})
+
     if opts.jid is None:
         opts.jid = raw_input("Username: ")
     if opts.password is None:
         opts.password = getpass.getpass("Password: ")
 
-    logging.debug("setting the individual to " + str(opts.individual))
+    # logger.debug("setting the individual to " + str(opts.individual))
 
-    #connect to a bridge, use dummy true if you don't have a gateway nearby for testing 
-    bridge=BridgeContainer(individual=opts.individual,ip=opts.bridgeip,apiusername=opts.apiusername,apiport=opts.apiport,dummy=False)
-    
-    #start up the XMPP client
-    xmpp = IoT_TestDevice(opts.jid+ "/" + opts.nodeid,opts.password)
+    # connect to a bridge, use dummy true if you don't have a gateway nearby for testing
+    bridge = BridgeContainer(individual=opts.individual, ip=opts.bridgeip, apiusername=opts.apiusername,
+                             apiport=opts.apiport, dummy=False)
+
+    # start up the XMPP client
+    xmpp = IoT_TestDevice(opts.jid + "/" + opts.nodeid, opts.password)
+    bridge.update_shared_id()
+         # print xmpp.shared_id
+    # logger.info("test", jid = str(opts.jid + "/" + opts.nodeid), object_type="test")
     # xmpp = IoT_TestDevice(opts.jid, opts.password)
     if opts.room:
-        #we will be using a multiuser room chat to connect to
-        #??????????????????
-        xmpp.nick=opts.nodeid
-        xmpp.room=opts.room
-        xmpp.joinMucRoom=True
-    
-    
+        # we will be using a multiuser room chat to connect to
+        # ??????????????????
+        xmpp.nick = opts.nodeid
+        xmpp.room = opts.room
+        xmpp.joinMucRoom = True
+
     # Instansiate the device object
     myDevice = TheDevice(opts.nodeid);
     myDevice._add_control_field(name="transitiontime", typename="int", value=50);
@@ -552,26 +611,30 @@ if __name__ == '__main__':
     myDevice._add_control_field(name="toggle", typename="boolean", value=1);
     myDevice._add_control_field(name="bri", typename="int", value=1);
     # myDevice._add_control_field(name="sat", typename="numeric", value=1);
-    
+
     myDevice._add_field(name="transitiontime", typename="numeric", unit="ms")
     # myDevice._add_field(name="hue", typename="numeric", unit="Count")
     myDevice._add_field(name="on", typename="boolean", unit="Count")
     myDevice._add_field(name="toggle", typename="boolean", unit="Count")
     myDevice._add_field(name="bri", typename="numeric", unit="Count")
     # myDevice._add_field(name="sat", typename="numeric", unit="Count")
-    
+
     myDevice._set_momentary_timestamp(myDevice._get_timestamp())
-    myDevice._add_field_momentary_data("transitiontime", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"})
+    myDevice._add_field_momentary_data("transitiontime", "0",
+                                       flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
     # myDevice._add_field_momentary_data("hue", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-    myDevice._add_field_momentary_data("on", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-    myDevice._add_field_momentary_data("toggle", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"})
-    myDevice._add_field_momentary_data("bri", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"});
+    myDevice._add_field_momentary_data("on", "0",
+                                       flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
+    myDevice._add_field_momentary_data("toggle", "0",
+                                       flags={"automaticReadout": "true", "momentary": "true", "writable": "true"})
+    myDevice._add_field_momentary_data("bri", "0",
+                                       flags={"automaticReadout": "true", "momentary": "true", "writable": "true"});
     # myDevice._add_field_momentary_data("sat", "0", flags={"automaticReadout": "true","momentary":"true","writable":"true"});
-    
+
     xmpp['xep_0323'].register_node(nodeId=opts.nodeid, device=myDevice, commTimeout=10);
     xmpp['xep_0325'].register_node(nodeId=opts.nodeid, device=myDevice, commTimeout=10);
     # print "the nodeid is " + opts.nodeid
 
     xmpp.connect()
-    xmpp.process(block=True)    
+    xmpp.process(block=True)
     logging.debug("lost connection")
