@@ -36,7 +36,7 @@ xmpp = None
 import logging
 import unittest
 import distutils.core
-import datetime
+from datetime import datetime
 import time
 
 from glob import glob
@@ -123,11 +123,9 @@ class BridgeContainer():
                 if not ip:
                     # try to find a bridge with meethue api
                     logging.debug("will try finding the hue bridge")
-                    print "1111"
                     localbridge = json.loads(urlopen('meethue.com/api/nupnp').read())
                     ip = localbridge[0]["internalipaddress"]
                     logging.info('connecting to localbridge at ' + str(ip))
-                    print "????"
                 self.mybridge = Bridge(ip, apiusername, apiport)
                 self.mybridge.connect()
                 # self.mybridge.get_api()
@@ -149,8 +147,6 @@ class BridgeContainer():
     def update_shared_id(self):
         self.shared_id=xmpp.shared_id
         self.boundjid=xmpp.boundjid.full
-        print xmpp.boundjid.full
-        print xmpp.shared_id
         self.mybridge.update_shared_id(self.shared_id,self.boundjid)
     def sendAll(self, **options):
         lamp = self.individual or 0
@@ -253,9 +249,8 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         self.shared_id = ""
 
     def update_shared_id(self):
-        self.shared_id = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M:%S')) + str(
+        self.shared_id = str(datetime.now()) + str(
             self.boundjid)
-
     def datacallback(self, from_jid, result, nodeId=None, timestamp=None, fields=None, error_msg=None):
         """
         This method will be called when you ask another IoT device for data with the xep_0323
@@ -329,6 +324,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         self.get_roster()
         # tell your preffered friend that you are alive 
         # self.send_message(mto='jabberjocke@jabber.se', mbody=self.boundjid.full +' is online use xep_323 to talk to me')
+        print self.boundjid.full+ " is online"
         self.send_message(mto='meng1@xmpp.jp', mbody=self.boundjid.full + ' is online')
         if self.joinMucRoom:  # getting all the available node?   ---Meng
             logging.info("joining MUC room " + self.room + " as " + self.nick)
@@ -539,8 +535,10 @@ if __name__ == '__main__':
     optp.add_option('-v', '--verbose', help='set logging to COMM',
                     action='store_const', dest='loglevel',
                     const=5, default=logging.INFO)
-    optp.add_option("--logfile", dest="logfile",
-                    help="name of the log file", default=None)
+    optp.add_option("--syslogfile", dest="syslogfile",
+                    help="name of the system log file", default=None)
+    optp.add_option("--trafficlogfile", dest="trafficlogfile",
+                    help="name of the traffic log file", default=None)
 
     # JID and password options.
     optp.add_option("-j", "--jid", dest="jid",
@@ -566,13 +564,14 @@ if __name__ == '__main__':
 
     # Setup logging.
 
-    # logging.basicConfig(level=opts.loglevel,
-    #                     format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.logfile, filemode='w')
     logging.basicConfig(level=opts.loglevel,
-                        format='%(asctime)s %(levelname)-8s %(message)s')
+                        format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.syslogfile, filemode='w')
+    # logging.basicConfig(level=opts.loglevel,
+    #                     format='%(asctime)s %(levelname)-8s %(message)s')
     #
     formatter = json_log_formatter.JSONFormatter('%(message)%(levelname)%(name)%(asctime)')
-    json_handler = logging.StreamHandler()  # later put it in one file! concatenating
+    formatter.converter = time.gmtime()
+    json_handler = logging.FileHandler(opts.trafficlogfile)  # later put it in one file! concatenating
     json_handler.setFormatter(formatter)
     logger = logging.getLogger('json')
     logger.addHandler(json_handler)

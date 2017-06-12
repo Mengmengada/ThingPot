@@ -102,19 +102,6 @@ class GetAllInfo(APIView):
         res = [{"success":{"username": var}}]
         return Response(res)
 
-
-
-class SetLight1(APIView):
-    def put(self, request):
-        """
-        Executes the test according with the configuration
-        supplied in the JSON
-        :param request: request
-        :return: True or False
-        """
-        logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
-        # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.set_light(1, request))
 class SetLight(APIView):
     def put(self, request, light_id):
         """
@@ -126,7 +113,8 @@ class SetLight(APIView):
         """
         # logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.set_light(light_id, request))
+        res = GetTemplate.set_light(light_id, request)
+        return Response(res)
 
 class GetLight(APIView):
     def get(self, request, light_id):
@@ -138,12 +126,7 @@ class GetLight(APIView):
                 light_id: the id of the philips light
         :return: True or False
         """
-        logger.info(
-            "GET Request of get the the info of the light " + light_id)
         res = GetTemplate.get_light(light_id, request)
-        global entry_counter
-        entry_counter += 1
-        infor = Service.gen_json_log(self,request,entry_counter,res)
         # logger.info(json.dumps(infor))
         # info = {"type": request.method, "header": Service.parseheaders(self, request), "reply": res,
         #         "url": request.path}
@@ -188,7 +171,8 @@ class GetSubInfo(APIView):
         """
         # logger.info(
         #     "GET Request of get the the info of the Config")
-        return Response(GetTemplate.get_whatever(request,key))
+        res = GetTemplate.get_whatever(request,key)
+        return Response(res)
     def put(self, request, key):
         """
         Executes the test according with the configuration

@@ -68,9 +68,8 @@ def get_whatever(request, _key):
             flag = True
     if flag == False:
         r = error(4, key)
-    # r=d["config"]
+        # b = json.loads(r)
     return r
-
 
 def set_config(request,_key):
     body_dic = json.loads(request.body)

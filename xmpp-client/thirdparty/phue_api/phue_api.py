@@ -652,7 +652,7 @@ class Bridge(object):
             if mode == 'GET' or mode == 'DELETE':
                 connection.request(mode, address)
             if mode == 'PUT' or mode == 'POST':
-                connection.request(mode, address, json.dumps(data), headers={"shared_id":self.shared_id})
+                connection.request(mode, address, json.dumps(data), headers={"shared-id":self.shared_id})
 
             logger.debug("{0} {1} {2}".format(mode, address, str(data)))
             log1.debug("api",extra={"unexpected":True,"type":"send","mode":mode,"address": address,

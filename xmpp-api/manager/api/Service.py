@@ -29,5 +29,5 @@ def gen_json_log(self, request, entry_counter, response):
         res = response.content
     info = {"time": datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M:%S'),
             "entry_id": entry_counter, "type": request.method, "header": parseheaders(self, request),
-            "reply_content": res, "reply_type": replytype ,"url": request.path, "body": request.body, "remote_ip": request.META['REMOTE_ADDR']}
+            "reply_content": res ,"url": request.path, "body": request.body, "remote_ip": request.META['REMOTE_ADDR']}
     return info
