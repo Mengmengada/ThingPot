@@ -42,7 +42,6 @@ from glob import glob
 from os.path import splitext, basename, join as pjoin
 from optparse import OptionParser
 from urllib import urlopen
-import json_log_formatter
 import sleekxmpp
 
 # Python versions before 3.0 do not use UTF-8 encoding
@@ -62,7 +61,7 @@ sys.path.append('../thirdparty')
 from sleekxmpp.plugins.xep_0323.device import Device as SensorDevice
 from sleekxmpp.plugins.xep_0325.device import Device as ControlDevice
 from phue_api import Bridge
-
+import json_log_formatter
 
 # class CustomisedJSONFormatter(json_log_formatter.JSONFormatter):
 #     formatter = json_log_formatter.JSONFormatter('%(message)%(levelname)%(name)%(asctime)')
