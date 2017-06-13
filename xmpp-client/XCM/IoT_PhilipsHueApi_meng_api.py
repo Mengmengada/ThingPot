@@ -16,7 +16,6 @@ import socket
 import json
 from urllib import urlopen
 from time import sleep
-import XLM.logformatter
 
 # import json_log_formatter # requires a pypi package for python called python-json-logger
 
