@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 from corsheaders.defaults import default_headers
-
+from datetime import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'api.middlewarelogrequest.RequestLogging'
 
 ]
 CORS_ORIGIN_ALLOW_ALL = True
@@ -110,6 +111,40 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+# set the logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters':{
+        'verbose':{
+            'format': '%(asctime)s %(levelname)-8s %(message)s'
+        },
+        'simple':{
+            'format':'%(message)s'
+        }
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'filename': 'log/api.log',
+            'class': 'logging.FileHandler',
+            'formatter': 'simple' ,
+        },
+
+    },
+    'loggers': {
+        'api.views': {
+            'handlers': ['file', ],
+            'level': 'DEBUG',
+            # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+        },
+        'middleware.middlewarelogrequest': {
+            'handlers': ['file', ],
+            'level': 'DEBUG',
+            # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+        }
+    }
+}
 
 
 # Internationalization

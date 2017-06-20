@@ -4,9 +4,19 @@ from rest_framework.views import APIView, Response
 import logging
 import GetTemplate
 import Service
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import time
+import datetime
+import json
+from django.core import serializers
 
+
+# FILENAME = str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H:%M')) + ".log"
+# FILENAME="meng.log"
+# LOGFILE = "log/" + FILENAME
+# logging.basicConfig(level=logging.DEBUG,
+#                         format='%(asctime)s %(levelname)-8s %(message)s', filename=LOGFILE, filemode='w')
+logger = logging.getLogger(__name__)
+entry_counter = 0
 
 # class TestList(APIView):
 #     def get(self, request):
@@ -50,46 +60,48 @@ class CreatUsers(APIView):
         """
         logger.info("A new request of creating user")
         logger.info("the request body is: "+request.body)
+
+        # print info
         # print Service.parseheaders(self, request)
         var = str(Service.gen_rand_str())
-        return Response([{"success":{"username": var}}])
-        # return Response(Service.parseheaders(self, request))
-        # return Response(request)
+        res = [{"success":{"username": var}}]
+        info = {"type": request.method, "header": Service.parseheaders(self, request), "reply":res, "url":request.path}
+        print info
+        # data = serializers.serialize('json',request.META)
+        # for value in request.META:
+        #     if "HTTP" in value:
+        #         print "ADDED: " + value + " = " + request.META[value]
+        # with open(LOGFILE,'w') as outfile:
+        #     json.dump(data, outfile)
+        return Response(res)
+# class Redirector(APIView):
+#     def get(self,request,suburl):
+#         if suburl==
+
+
 class GetAllInfo(APIView):
     def get(self, request):
         """
         Executes the test according with the configuration
         supplied in the JSON
-        :param request: request
-        :return: True or False
+        :param request: HttpRequest
+        :return: JSON(replies all information of the "bridge")
         """
-        logger.info("Request of getting the information of the bridge")
-        # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_complete_template())
+        # logger.info("Request of getting the information of the bridge")
 
-class SetLight2(APIView):
-    def put(self, request):
-        """
-        Executes the test according with the configuration
-        supplied in the JSON
-        :param request: request
-        :return: True or False
-        """
-        logger.info("Request of changing the the status of the light 2, body of the put request is: " + request.body)
-        # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.set_light(2,request))
+        res = GetTemplate.get_complete_template()
 
-class SetLight1(APIView):
-    def put(self, request):
+        return Response(res)
+    def post(self, request):
         """
-        Executes the test according with the configuration
-        supplied in the JSON
-        :param request: request
-        :return: True or False
+        Return a JSON based on the post request
+        :param request: HttpRequest
+        :return: list of json(replies a valid "username" of the "bridge")
         """
-        logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
-        # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.set_light(1, request))
+        var = str(Service.gen_rand_str())
+        res = [{"success":{"username": var}}]
+        return Response(res)
+
 class SetLight(APIView):
     def put(self, request, light_id):
         """
@@ -97,11 +109,12 @@ class SetLight(APIView):
         Executes the test according with the configuration
         supplied in the JSON
         :param request: request
-        :return: True or False
+        :return: JSON
         """
-        logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
+        # logger.info("Request of changing the the status of the light 1, body of the put request is: "+request.body)
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.set_light(light_id, request))
+        res = GetTemplate.set_light(light_id, request)
+        return Response(res)
 
 class GetLight(APIView):
     def get(self, request, light_id):
@@ -113,50 +126,15 @@ class GetLight(APIView):
                 light_id: the id of the philips light
         :return: True or False
         """
-        logger.info(
-            "GET Request of get the the info of the light " + light_id)
+        res = GetTemplate.get_light(light_id, request)
+        # logger.info(json.dumps(infor))
+        # info = {"type": request.method, "header": Service.parseheaders(self, request), "reply": res,
+        #         "url": request.path}
+        # print info
         # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_light(light_id, request))
+        return Response(res)
 
-# class GetLight1(APIView):
-#     def get(self, request):
-#         """
-#         Executes the test according with the configuration
-#         supplied in the JSON
-#         :param request: request
-#         :return: True or False
-#         """
-#         logger.info(
-#             "GET Request of get the the info of the light 1")
-#         # return Response([{"lights": {}, "groups": {}}])
-#         return Response(GetTemplate.get_light(1, request))
-#
-# class GetLight2(APIView):
-#     def get(self, request):
-#         """
-#         Executes the test according with the configuration
-#         supplied in the JSON
-#         :param request: request
-#         :return: True or False
-#         """
-#         logger.info(
-#             "GET Request of get the the info of the light 2")
-#         # return Response([{"lights": {}, "groups": {}}])
-#         return Response(GetTemplate.get_light(2, request))
 
-class GetLights(APIView):
-    def get(self, request):
-        """
-        get information of a group of lights
-        Executes the test according with the configuration
-        supplied in the JSON
-        :param request: request
-        :return: True or False
-        """
-        logger.info(
-            "GET Request of get the the info of the lights : " + request.body)
-        # return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_light(None, request))
 
 class GetConfig(APIView):
     def get(self, request):
@@ -181,6 +159,8 @@ class GetConfig(APIView):
             "PUT Request of set the name of the bridge: " + request.body)
         # return Response([{"lights": {}, "groups": {}}])
         return Response(GetTemplate.set_config(request))
+
+
 class GetSubInfo(APIView):
     def get(self, request, key):
         """
@@ -189,10 +169,19 @@ class GetSubInfo(APIView):
         :param request: request
         :return: True or False
         """
-        logger.info(
-            "GET Request of get the the info of the Config")
-        #return Response([{"lights": {}, "groups": {}}])
-        return Response(GetTemplate.get_whatever(request,key))
+        # logger.info(
+        #     "GET Request of get the the info of the Config")
+        res = GetTemplate.get_whatever(request,key)
+        return Response(res)
+    def put(self, request, key):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: request
+        :return: True or False
+        """
+        return Response(GetTemplate.set_config(request,key))
+
 
 class DelUsr(APIView):
     def delete(self, request):
@@ -202,45 +191,4 @@ class DelUsr(APIView):
         :param request: request
         :return: True or False
         """
-        logger.info(
-            "DELETE Request to delete user in whitelist")
-        # return Response([{"lights": {}, "groups": {}}])
         return Response(GetTemplate.err_msg(request))
-
-
-# class TestPost(APIView):
-#     def post(self, request):
-#         """
-#         Used for seeing the request
-#         :param request: request
-#         :return: Dict
-#         """
-#         test = communicationService.CommunicationService().json_parse(
-#             communicationService.CommunicationService().parseheaders(request)['TESTINFORMATION'])
-#         print test["TASKS"][1]
-#         return Response(test)
-#
-#
-# class AddObject(APIView):
-#     def get(self, request):
-#         pass
-#
-#     def post(self, request):
-#         """
-#         Used to add new test or category to the database.
-#         :param request:
-#         :return:
-#         """
-#         database = databaseService.DatabaseService()
-#         database.add(request)
-#         return Response(communicationService.CommunicationService().parseheaders(request))
-#
-#
-# class Results(APIView):
-#     def post(self, request):
-#         """
-#         Not used currently.
-#         :param request:
-#         :return:
-#         """
-#         return HttpResponse("hello")

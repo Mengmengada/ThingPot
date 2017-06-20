@@ -31,7 +31,11 @@ else:
     import httplib
 
 logger = logging.getLogger('phue')
+<<<<<<< HEAD
 log1 = logging.getLogger('log1')
+=======
+log1 = logging.getLogger('json')
+>>>>>>> dev
 
 if platform.system() == 'Windows':
     USER_HOME = 'USERPROFILE'
@@ -89,7 +93,6 @@ class Light(object):
         self._reset_bri_after_on = None
         self._reachable = None
         self._type = None
-
     def __repr__(self):
         # like default python repr function, but add light name
         return '<{0}.{1} object "{2}" at {3}>'.format(
@@ -595,7 +598,7 @@ class Bridge(object):
 
 
     """
-    def __init__(self, ip=None, username=None,apiport=None, config_file_path=None):
+    def __init__(self, ip=None, username=None,apiport=None, config_file_path="/home/bitte/python_hue_conf.txt"):
         """ Initialization function.
 
         Parameters:
@@ -614,7 +617,6 @@ class Bridge(object):
             self.config_file_path = os.path.join(os.getenv(USER_HOME), 'Documents', '.python_hue_api')
         else:
             self.config_file_path = os.path.join(os.getcwd(), '.python_hue_api')
-
         self.ip = ip
         self.username = username
         self.lights_by_id = {}
@@ -625,7 +627,8 @@ class Bridge(object):
         self.port = apiport
         # self.minutes = 600 # these do not seem to be used anywhere?
         # self.seconds = 10
-
+        self.shared_id = ""
+        self.boundjid = ""
         self.connect()
 
     @property
@@ -641,7 +644,10 @@ class Bridge(object):
         data = {'name': self._name}
         self.request(
             'PUT', '/api/' + self.username + '/config', data)
-
+    def update_shared_id(self,shared_id,boundjid):
+        self.boundjid=boundjid
+        self.shared_id=shared_id
+        # print self.shared_id
     def request(self, mode='GET', address=None, data=None):
         """ Utility function for HTTP GET/PUT requests for the API"""
         connection = httplib.HTTPConnection(self.ip, self.port, timeout=10)
@@ -650,10 +656,16 @@ class Bridge(object):
             if mode == 'GET' or mode == 'DELETE':
                 connection.request(mode, address)
             if mode == 'PUT' or mode == 'POST':
-                connection.request(mode, address, json.dumps(data))
+                connection.request(mode, address, json.dumps(data), headers={"shared-id":self.shared_id})
 
+<<<<<<< HEAD
             log1.info("{0} {1} {2}".format(mode, address, str(data)))
 
+=======
+            logger.debug("{0} {1} {2}".format(mode, address, str(data)))
+            log1.debug("api",extra={"unexpected":True,"type":"send","mode":mode,"address": address,
+                                    "content":str(data),"shared_id":self.shared_id, "jid":str(self.boundjid)})
+>>>>>>> dev
         except socket.timeout:
             error = "{} Request to {}{} timed out.".format(mode, self.ip, address)
 
@@ -661,14 +673,23 @@ class Bridge(object):
             raise PhueRequestTimeout(None, error)
 
         result = connection.getresponse()
-        connection.close()
+        # print result.read()
+        # connection.close()
+        # print result.read()
         if PY3K:
             return json.loads(str(result.read(), encoding='utf-8'))
         else:
             result_str = result.read()
+<<<<<<< HEAD
             log1.info(result_str)
+=======
+            # print result.read()
+            logger.debug("RECV from HTTP: "+ result_str)
+            log1.debug("api",extra={"unexpected":True,"type":"receive","content":json.loads(result_str),"shared_id":self.shared_id, "jid":str(self.boundjid)})
+>>>>>>> dev
             return json.loads(result_str)
-
+        # print result_str
+        connection.close()
     def get_ip_address(self, set_result=False):
 
         """ Get the bridge ip address from the meethue.com nupnp api """
@@ -702,9 +723,15 @@ class Bridge(object):
 
     def register_app(self):
         """ Register this computer with the Hue bridge hardware and save the resulting access token """
+        logger.debug("registering the username")
         registration_request = {"devicetype": "python_hue"}
+        # print registration_request
         response = self.request('POST', '/api', registration_request)
+        # print response
+        # print "ddddd"
+        logger.debug("receiving:" + response)
         for line in response:
+            print line
             for key in line:
                 if 'success' in key:
                     with open(self.config_file_path, 'w') as f:
@@ -886,7 +913,11 @@ class Bridge(object):
             light_id_array = [light_id]
         result = []
         for light in light_id_array:
+<<<<<<< HEAD
             log1.debug(str(data))
+=======
+            # logger.debug(str(data))
+>>>>>>> dev
             if parameter == 'name':
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     light_id), data))
