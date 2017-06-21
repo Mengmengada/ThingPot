@@ -111,6 +111,8 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+filename="/data/logs/api/api" + str(datetime.now())+".log" # for real
+# filename = "log/api"+str(datetime.now())+".log"  #for debug in local computer
 # set the logging
 LOGGING = {
     'version': 1,
@@ -126,7 +128,7 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filename': '/data/logs/api/api.log',
+            'filename': filename,
             'class': 'logging.FileHandler',
             'formatter': 'simple' ,
         },
