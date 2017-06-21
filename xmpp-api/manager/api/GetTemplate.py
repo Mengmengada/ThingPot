@@ -15,12 +15,12 @@ def get_complete_template():
     b = json.loads(a)
     return b
 
+def get_fake_info():
 
-# def get_complete_template():
-#     with open('api/template.json') as data:
-#         d = json.loads(data.read())
-#         r = json.dumps(        )
-#     return d
+    with open('api/tempfile.json') as data:
+        a = data.read()
+    b = json.loads(a)
+    return b
 
 def set_light(light_id, request):
     # prequest.body
@@ -70,7 +70,11 @@ def get_whatever(request, _key):
         r = error(4, key)
         # b = json.loads(r)
     return r
-
+def get_user():
+    with open('api/template.json') as data:
+        d = json.loads(data.read())
+    r = d["config"]["whitelist"]
+    return r
 def set_config(request,_key):
     body_dic = json.loads(request.body)
     key_list = []

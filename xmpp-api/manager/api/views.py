@@ -101,6 +101,10 @@ class GetAllInfo(APIView):
         var = str(Service.gen_rand_str())
         res = [{"success":{"username": var}}]
         return Response(res)
+class GetInfo(APIView):
+    def get(self,request):
+        res = GetTemplate.get_fake_info()
+        return Response(res)
 
 class SetLight(APIView):
     def put(self, request, light_id):
@@ -181,7 +185,10 @@ class GetSubInfo(APIView):
         :return: True or False
         """
         return Response(GetTemplate.set_config(request,key))
-
+class GetUsr(APIView):
+    def get(self, request):
+        res = GetTemplate.get_user()
+        return Response(res)
 
 class DelUsr(APIView):
     def delete(self, request):
