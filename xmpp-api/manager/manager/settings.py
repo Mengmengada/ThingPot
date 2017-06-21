@@ -126,7 +126,7 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filename': 'log/api.log',
+            'filename': '/data/logs/api/api.log',
             'class': 'logging.FileHandler',
             'formatter': 'simple' ,
         },
