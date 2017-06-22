@@ -62,6 +62,12 @@ CORS_ALLOW_HEADERS = default_headers + (
     'testname'
 )
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
+
 ROOT_URLCONF = 'manager.urls'
 
 TEMPLATES = [
