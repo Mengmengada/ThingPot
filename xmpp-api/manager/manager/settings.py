@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 from corsheaders.defaults import default_headers
 from datetime import datetime
-
+from time import strftime
+import pytz
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '3s#pfb2pl-&kofpzem4!q+9bhkx9w(j+swr$hhn_dql50z!xac'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -117,8 +118,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-filename="/data/logs/api/api" + str(datetime.now())+".log" # for real
-# filename = "log/api"+str(datetime.now())+".log"  #for debug in local computer
+# filename1="/data/logs/api/api/json" + str(datetime.now().strftime('%Y-%m-%d-%H:%M:%S'))+".log" # for real
+# filename2="/data/logs/api/api/sys" + str(datetime.now())+".log"
+times=str(datetime.now(pytz.utc).strftime('%Y-%m-%d-%H:%M:%S'))
+# times = strftime('%Y-%m-%d-%H:%M:%S')
+print times
+filename1 = "log/json"+times+".log"  #for debug in local computer
+filename2 = "log/sys"+times+".log"  #for debug in local computer
 # set the logging
 LOGGING = {
     'version': 1,
@@ -134,26 +140,37 @@ LOGGING = {
     'handlers': {
         'file': {
             'level': 'DEBUG',
-            'filename': filename,
+            'filename': filename1,
             'class': 'logging.FileHandler',
             'formatter': 'simple' ,
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': filename2,
+            'maxBytes': 1024 * 1024 * 15,  # 15MB
+            'backupCount': 10,
+            'formatter': 'verbose' ,
         },
 
     },
     'loggers': {
-        'api.views': {
-            'handlers': ['file', ],
-            'level': 'DEBUG',
-            # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
-        },
+        # 'api.views': {
+        #     'handlers': ['file', ],
+        #     'level': 'DEBUG',
+        #     # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+        # },
         'middleware.middlewarelogrequest': {
             'handlers': ['file', ],
             'level': 'DEBUG',
-            # 'level': os.getenv('DJANGO_LOG_LEVEL','DEBUG'),
+        },
+        'django': {
+            'handlers': ['console', ],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+
         }
     }
 }
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
