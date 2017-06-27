@@ -121,8 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 times=str(datetime.now(pytz.utc).strftime('%Y-%m-%d-%H:%M:%S'))
 # times = strftime('%Y-%m-%d-%H:%M:%S')
-filename1="/data/logs/api/api/json" + times+".log" # for real
-filename2="/data/logs/api/api/sys" + times+".log"
+filename1="/data/logs/api/json" + times+".log" # for real
+filename2="/data/logs/api/sys" + times+".log"
 # filename1 = "log/json"+times+".log"  #for debug in local computer
 # filename2 = "log/sys"+times+".log"  #for debug in local computer
 # set the logging
