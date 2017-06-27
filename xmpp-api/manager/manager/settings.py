@@ -118,13 +118,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-# filename1="/data/logs/api/api/json" + str(datetime.now().strftime('%Y-%m-%d-%H:%M:%S'))+".log" # for real
-# filename2="/data/logs/api/api/sys" + str(datetime.now())+".log"
+
 times=str(datetime.now(pytz.utc).strftime('%Y-%m-%d-%H:%M:%S'))
 # times = strftime('%Y-%m-%d-%H:%M:%S')
-print times
-filename1 = "log/json"+times+".log"  #for debug in local computer
-filename2 = "log/sys"+times+".log"  #for debug in local computer
+filename1="/data/logs/api/api/json" + times+".log" # for real
+filename2="/data/logs/api/api/sys" + times+".log"
+# filename1 = "log/json"+times+".log"  #for debug in local computer
+# filename2 = "log/sys"+times+".log"  #for debug in local computer
 # set the logging
 LOGGING = {
     'version': 1,
