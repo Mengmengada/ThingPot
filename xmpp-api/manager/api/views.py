@@ -77,7 +77,19 @@ class CreatUsers(APIView):
 # class Redirector(APIView):
 #     def get(self,request,suburl):
 #         if suburl==
+class GetSimpConfig(APIView):
+    def get(self, request):
+        """
+        Executes the test according with the configuration
+        supplied in the JSON
+        :param request: HttpRequest
+        :return: JSON(replies all information of the "bridge")
+        """
+        # logger.info("Request of getting the information of the bridge")
 
+        res = GetTemplate.get_simp_config()
+
+        return Response(res)
 
 class GetAllInfo(APIView):
     def get(self, request):

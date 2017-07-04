@@ -14,7 +14,11 @@ def get_complete_template():
         a = data.read()
     b = json.loads(a)
     return b
-
+def get_simp_config():
+    with open('api/config.json') as data:
+        a = data.read()
+    b = json.loads(a)
+    return b
 def get_fake_info():
 
     with open('api/tempfile.json') as data:
