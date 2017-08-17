@@ -78,12 +78,7 @@ RECONNECT_MAX_ATTEMPTS = None
 
 
 log = logging.getLogger(__name__)
-<<<<<<< HEAD
-log1 = logging.getLogger("log1")
-
-=======
 logger = logging.getLogger('json')
->>>>>>> dev
 class RestartStream(Exception):
     """
     Exception to restart stream processing, including
@@ -1260,7 +1255,7 @@ class XMLStream(object):
                         return
 
         if mask is not None:
-            log1.warning("Use of send mask waiters is deprecated.")
+            log.warning("Use of send mask waiters is deprecated.")
             wait_for = Waiter("SendWait_%s" % self.new_id(),
                               MatchXMLMask(mask))
             self.register_handler(wait_for)
@@ -1313,12 +1308,8 @@ class XMLStream(object):
                                Defaults to :attr:`auto_reconnect`.
         """
         if now:
-<<<<<<< HEAD
-            log1.info("SEND (IMMED): %s", data)
-=======
             log.debug("SEND (IMMED): %s", data)
             logger.debug("xmpp",extra={"unexpected":False,"type":"send","content":data,"jid":str(self.boundjid.full)})
->>>>>>> dev
             try:
                 data = data.encode('utf-8')
                 total = len(data)
@@ -1337,7 +1328,7 @@ class XMLStream(object):
                             if tries >= self.ssl_retry_max:
                                 log.debug('SSL error: max retries reached')
                                 self.exception(serr)
-                                log1.warning("Failed to send %s", data)
+                                log.warning("Failed to send %s", data)
                                 if reconnect is None:
                                     reconnect = self.auto_reconnect
                                 if not self.stop.is_set():
@@ -1348,10 +1339,10 @@ class XMLStream(object):
                                 time.sleep(self.ssl_retry_delay)
                             tries += 1
                 if count > 1:
-                    log1.info('SENT: %d chunks', count)
+                    log.debug('SENT: %d chunks', count)
             except (Socket.error, ssl.SSLError) as serr:
                 self.event('socket_error', serr, direct=True)
-                log1.warning("Failed to send %s", data)
+                log.warning("Failed to send %s", data)
                 if reconnect is None:
                     reconnect = self.auto_reconnect
                 if not self.stop.is_set():
@@ -1539,11 +1530,7 @@ class XMLStream(object):
                 if depth == 0:
                     # We have received the start of the root element.
                     root = xml
-<<<<<<< HEAD
-                    log1.debug('RECV: %s', tostring(root, xmlns=self.default_ns,
-=======
                     log.debug('RECVsssssssss: %s', tostring(root, xmlns=self.default_ns,
->>>>>>> dev
                                                          stream=self,
                                                          top_level=True,
                                                          open_only=True))
@@ -1567,7 +1554,7 @@ class XMLStream(object):
                 if depth == 0:
                     # The stream's root element has closed,
                     # terminating the stream.
-                    log1.info("End of stream recieved")
+                    log.debug("End of stream recieved")
                     self.stream_end_event.set()
                     return False
                 elif depth == 1:
@@ -1581,7 +1568,7 @@ class XMLStream(object):
                         # Keep the root element empty of children to
                         # save on memory use.
                         root.clear()
-        log1.debug("Ending read XML loop")
+        log.debug("Ending read XML loop")
 
     def _build_stanza(self, xml, default_ns=None):
         """Create a stanza object from a given XML object.
@@ -1630,13 +1617,8 @@ class XMLStream(object):
         if stanza is None:
             return
 
-<<<<<<< HEAD
-        log1.debug("RECV: %s", stanza)
-
-=======
         log.debug("RECV: %s", stanza)
         logger.debug("xmpp", extra={"unexpected": False, "type": "receive", "content": str(stanza),"jid":str(self.boundjid.full)})#all received is here?
->>>>>>> dev
         # Match the stanza against registered handlers. Handlers marked
         # to run "in stream" will be executed immediately; the rest will
         # be queued.
@@ -1760,12 +1742,8 @@ class XMLStream(object):
                     data = self.send_queue.get()                                            # Wait for data to send
                     if data is None:
                         continue
-<<<<<<< HEAD
-                log1.info("SEND: %s", data)
-=======
                 log.debug("SEND: %s", data)
                 logger.debug("xmpp3",  extra={"unexpected": False, "type": "send", "content": data,"jid":str(self.boundjid.full),"shared_id": self.shared_id})
->>>>>>> dev
                 enc_data = data.encode('utf-8')
                 total = len(enc_data)
                 sent = 0
@@ -1794,11 +1772,11 @@ class XMLStream(object):
                                     time.sleep(self.ssl_retry_delay)
                                 tries += 1
                     if count > 1:
-                        log1.debug('SENT: %d chunks', count)
+                        log.debug('SENT: %d chunks', count)
                     self.send_queue.task_done()
                 except (Socket.error, ssl.SSLError) as serr:
                     self.event('socket_error', serr, direct=True)
-                    log1.warning("Failed to send %s", data)
+                    log.warning("Failed to send %s", data)
                     if not self.stop.is_set():
                         self.__failed_send_stanza = data
                         self._end_thread('send')

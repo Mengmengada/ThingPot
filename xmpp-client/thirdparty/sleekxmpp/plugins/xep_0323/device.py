@@ -10,7 +10,7 @@
 
 import datetime
 import logging
-log1 = logging.getLogger('log1')
+
 class Device(object):
     """
     Example implementation of a device readout object. 
@@ -31,7 +31,7 @@ class Device(object):
         self.timestamp_data = {}
         self.momentary_data = {}
         self.momentary_timestamp = ""
-        log1.debug("Device object started nodeId %s",nodeId)
+        logging.debug("Device object started nodeId %s",nodeId)
 
     def has_field(self, field):
         """
@@ -96,7 +96,7 @@ class Device(object):
                                 Error details when a request failed. 
 
         """
-        log1.debug("request_fields called looking for fields %s",fields)
+        logging.debug("request_fields called looking for fields %s",fields)
         #Might need to be changed
         if len(fields) > 0:
             # Check availiability
@@ -110,7 +110,7 @@ class Device(object):
 
         # Refresh data from device
         # ...
-        log1.debug("about to refresh device fields %s",fields)
+        logging.debug("about to refresh device fields %s",fields)
         self.refresh(fields)
 
         if "momentary" in flags and flags['momentary'] == "true" or \

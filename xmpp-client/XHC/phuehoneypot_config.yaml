@@ -31,4 +31,4 @@
  apiusername:
     - aaaaaaaaaabbbbbbbbbbccccccccccdddddddddd
  filepath: #system log file directory path, each account has on log file, the directory chancges when the date is different
-    - '../XLM/test'
+    - '../XLM/xmpplogs'

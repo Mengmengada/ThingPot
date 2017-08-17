@@ -16,7 +16,6 @@ import socket
 import json
 from urllib import urlopen
 from time import sleep
-import XLM.LogHandler
 
 # import json_log_formatter # requires a pypi package for python called python-json-logger
 
@@ -122,19 +121,10 @@ class BridgeContainer():
                 if not ip:
                     # try to find a bridge with meethue api
                     logging.debug("will try finding the hue bridge")
-<<<<<<< HEAD
-                    print "1111"
-                    localbridge=json.loads(urlopen('meethue.com/api/nupnp').read())
-                    ip=localbridge[0]["internalipaddress"]
-                    log1.info('connecting to localbridge at '+str(ip))
-                    print "????"
-                self.mybridge=Bridge(ip, apiusername, apiport)
-=======
                     localbridge = json.loads(urlopen('meethue.com/api/nupnp').read())
                     ip = localbridge[0]["internalipaddress"]
                     logging.info('connecting to localbridge at ' + str(ip))
                 self.mybridge = Bridge(ip, apiusername, apiport)
->>>>>>> dev
                 self.mybridge.connect()
                 # self.mybridge.get_api()
             except Exception as e:
@@ -190,7 +180,7 @@ class BridgeContainer():
 
     def get_state(self):
         if self.individual:
-            log1.debug(str(self.mybridge.get_light(self.individual)))
+            logging.debug(str(self.mybridge.get_light(self.individual)))
             return self.mybridge.get_light(self.individual)['state']
 
     def toggle(self, value=1, dummy=None):
@@ -289,11 +279,7 @@ class IoT_TestDevice(sleekxmpp.ClientXMPP):
         """
         Called as respons to a xep_0325 control message 
         """
-<<<<<<< HEAD
-        log1.info('Control callback from %s result %s error %s',from_jid,result,error_msg)
-=======
         logging.info('Control callback from %s result %s error %s', from_jid, result, error_msg)
->>>>>>> dev
 
     def getformcallback(self, from_jid, result, error_msg):
         """
@@ -502,13 +488,8 @@ class TheDevice(SensorDevice, ControlDevice):
     def _set_field_value(self, name, value):
         """ overrides the set field value from device to act on my local values                                            
         """
-<<<<<<< HEAD
-        log1.debug(" setting fields " + name + " to: " + str(value) )
-        if name=="hue":
-=======
         logging.debug(" setting fields " + name + " to: " + str(value))
         if name == "hue":
->>>>>>> dev
             bridge.setHue(int(value))
         elif name == "transitiontime":
             bridge.setTransitionTime(float(value))
@@ -539,25 +520,6 @@ if __name__ == '__main__':
     #
     #   If no bridgeip is provided 
     #   TODO: clean up inheritage from IoT_TestDevice
-<<<<<<< HEAD
-    def setup_logger(logger_name, log_file, level=logging.DEBUG):
-        l = logging.getLogger(logger_name)
-        formatter = logging.Formatter('%(asctime)s HONEY    %(message)s')
-        fileHandler = logging.FileHandler(log_file, mode='w')
-        fileHandler.setFormatter(formatter)
-        streamHandler = logging.StreamHandler()
-        streamHandler.setFormatter(formatter)
-
-        l.setLevel(level)
-        l.addHandler(fileHandler)
-        l.addHandler(streamHandler)
-
-    setup_logger('log1', r'normallog.log', level=logging.INFO)
-    log1 = logging.getLogger('log1')
-     # Setup logging.
-    # log1.error("bla")
-=======
->>>>>>> dev
 
     optp = OptionParser()
 
@@ -598,13 +560,6 @@ if __name__ == '__main__':
 
     opts, args = optp.parse_args()
 
-<<<<<<< HEAD
-
-    logging.basicConfig(level=opts.loglevel,
-                        format='%(asctime)s %(levelname)-8s %(message)s', filename=opts.logfile, filemode='w')
-    # logging.basicConfig(level=logging.WARN,
-    #                     format='%(asctime)s %(levelname)-8s %(message)s', filename="mmmmmmm.txt", filemode='w')
-=======
     # Setup logging.
 
     logging.basicConfig(level=opts.loglevel,
@@ -621,7 +576,6 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     # logger.info("test",extra = {"aa,bb,cc":opts.nodeid})
 
->>>>>>> dev
     if opts.jid is None:
         opts.jid = raw_input("Username: ")
     if opts.password is None:
@@ -679,10 +633,5 @@ if __name__ == '__main__':
     # print "the nodeid is " + opts.nodeid
 
     xmpp.connect()
-<<<<<<< HEAD
-    xmpp.process(block=True)    
-    log1.error("lost connection")
-=======
     xmpp.process(block=True)
     logging.debug("lost connection")
->>>>>>> dev

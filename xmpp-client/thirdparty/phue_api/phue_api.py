@@ -31,11 +31,7 @@ else:
     import httplib
 
 logger = logging.getLogger('phue')
-<<<<<<< HEAD
-log1 = logging.getLogger('log1')
-=======
 log1 = logging.getLogger('json')
->>>>>>> dev
 
 if platform.system() == 'Windows':
     USER_HOME = 'USERPROFILE'
@@ -133,7 +129,7 @@ class Light(object):
         self._name = value
         self._set('name', self._name)
 
-        log1.debug("Renaming light from '{0}' to '{1}'".format(
+        logger.debug("Renaming light from '{0}' to '{1}'".format(
             old_name, value))
 
         self.bridge.lights_by_name[self.name] = self
@@ -158,7 +154,7 @@ class Light(object):
         if self._on and value is False:
             self._reset_bri_after_on = self.transitiontime is not None
             if self._reset_bri_after_on:
-                log1.warning(
+                logger.warning(
                     'Turned off light with transitiontime specified, brightness will be reset on power on')
 
         self._set('on', value)
@@ -166,7 +162,7 @@ class Light(object):
         # work around bug by resetting brightness after a power on
         if self._on is False and value is True:
             if self._reset_bri_after_on:
-                log1.warning(
+                logger.warning(
                     'Light was turned off with transitiontime specified, brightness needs to be reset now.')
                 self.brightness = self._brightness
                 self._reset_bri_after_on = False
@@ -658,14 +654,9 @@ class Bridge(object):
             if mode == 'PUT' or mode == 'POST':
                 connection.request(mode, address, json.dumps(data), headers={"shared-id":self.shared_id})
 
-<<<<<<< HEAD
-            log1.info("{0} {1} {2}".format(mode, address, str(data)))
-
-=======
             logger.debug("{0} {1} {2}".format(mode, address, str(data)))
             log1.debug("api",extra={"unexpected":True,"type":"send","mode":mode,"address": address,
                                     "content":str(data),"shared_id":self.shared_id, "jid":str(self.boundjid)})
->>>>>>> dev
         except socket.timeout:
             error = "{} Request to {}{} timed out.".format(mode, self.ip, address)
 
@@ -680,13 +671,9 @@ class Bridge(object):
             return json.loads(str(result.read(), encoding='utf-8'))
         else:
             result_str = result.read()
-<<<<<<< HEAD
-            log1.info(result_str)
-=======
             # print result.read()
             logger.debug("RECV from HTTP: "+ result_str)
             log1.debug("api",extra={"unexpected":True,"type":"receive","content":json.loads(result_str),"shared_id":self.shared_id, "jid":str(self.boundjid)})
->>>>>>> dev
             return json.loads(result_str)
         # print result_str
         connection.close()
@@ -751,12 +738,11 @@ class Bridge(object):
 
     def connect(self):
         """ Connect to the Hue bridge """
-        # logger.info('Attempting to connect to the bridge...')
-        log1.info("attempting to connect to the bridge..")
+        logger.info('Attempting to connect to the bridge...')
         # If the ip and username were provided at class init
         if self.ip is not None and self.username is not None:
-            log1.info('Using ip: ' + self.ip)
-            log1.info('Using username: ' + self.username)
+            logger.info('Using ip: ' + self.ip)
+            logger.info('Using username: ' + self.username)
             return
 
         if self.ip is None or self.username is None:
@@ -765,17 +751,17 @@ class Bridge(object):
                     config = json.loads(f.read())
                     if self.ip is None:
                         self.ip = list(config.keys())[0]
-                        log1.info('Using ip from config: ' + self.ip)
+                        logger.info('Using ip from config: ' + self.ip)
                     else:
-                        log1.info('Using ip: ' + self.ip)
+                        logger.info('Using ip: ' + self.ip)
                     if self.username is None:
                         self.username = config[self.ip]['username']
-                        log1.info(
+                        logger.info(
                             'Using username from config: ' + self.username)
                     else:
-                        log1.info('Using username: ' + self.username)
+                        logger.info('Using username: ' + self.username)
             except Exception as e:
-                log1.info(
+                logger.info(
                     'Error opening config file, will attempt bridge registration')
                 self.register_app()
 
@@ -913,11 +899,7 @@ class Bridge(object):
             light_id_array = [light_id]
         result = []
         for light in light_id_array:
-<<<<<<< HEAD
-            log1.debug(str(data))
-=======
             # logger.debug(str(data))
->>>>>>> dev
             if parameter == 'name':
                 result.append(self.request('PUT', '/api/' + self.username + '/lights/' + str(
                     light_id), data))
@@ -932,7 +914,7 @@ class Bridge(object):
                 logger.warn("ERROR: {0} for light {1}".format(
                     result[-1][0]['error']['description'], light))
 
-        log1.debug(result)
+        logger.debug(result)
         return result
 
     # Sensors #####
@@ -963,13 +945,13 @@ class Bridge(object):
 
         if ("success" in result[0].keys()):
             new_id = result[0]["success"]["id"]
-            log1.debug("Created sensor with ID " + new_id)
+            logger.debug("Created sensor with ID " + new_id)
             new_sensor = Sensor(self, int(new_id))
             self.sensors_by_id[new_id] = new_sensor
             self.sensors_by_name[name] = new_sensor
             return new_id, None
         else:
-            log1.debug("Failed to create sensor:" + repr(result[0]))
+            logger.debug("Failed to create sensor:" + repr(result[0]))
             return None, result[0]
 
     def get_sensor(self, sensor_id=None, parameter=None):
